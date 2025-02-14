@@ -1,14 +1,108 @@
 framework:
     messenger:
         transports:
-            default:
+            api_to_sound_extractor:
                 dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
                 options:
                     exchange:
                         name: messages
                         type: direct
                     auto_setup: true
                     queues:
-                        default:
-                            binding_keys: [default]
+                        api_to_sound_extractor:
+                            binding_keys: [api_to_sound_extractor]
+
+            sound_extractor_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        sound_extractor_to_api:
+                            binding_keys: [sound_extractor_to_api]
+
+            api_to_subtitle_generator:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_subtitle_generator:
+                            binding_keys: [api_to_subtitle_generator]
+
+            subtitle_generator_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        subtitle_generator_to_api:
+                            binding_keys: [subtitle_generator_to_api]
+
+            api_to_subtitle_merger:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_subtitle_merger:
+                            binding_keys: [api_to_subtitle_merger]
+
+            subtitle_merger_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        subtitle_merger_to_api:
+                            binding_keys: [subtitle_merger_to_api]
+
+            api_to_subtitle_incrustator:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_subtitle_incrustator:
+                            binding_keys: [api_to_subtitle_incrustator]
+
+            subtitle_incrustator_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        subtitle_incrustator_to_api:
+                            binding_keys: [subtitle_incrustator_to_api]
+                            
         routing:
+            'App\Protobuf\ApiToSoundExtractor': api_to_sound_extractor
+            'App\Protobuf\SoundExtractorToApi': sound_extractor_to_api
+            'App\Protobuf\ApiToSubtitleGenerator': api_to_subtitle_generator
+            'App\Protobuf\SubtitleGeneratorToApi': subtitle_generator_to_api
+            'App\Protobuf\ApiToSubtitleMerger': api_to_subtitle_merger
+            'App\Protobuf\SubtitleMergerToApi': subtitle_merger_to_api
+            'App\Protobuf\ApiToSubtitleIncrustator': api_to_subtitle_incrustator
+            'App\Protobuf\SubtitleIncrustatorToApi': subtitle_incrustator_to_api

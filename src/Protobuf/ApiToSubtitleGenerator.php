@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>App.Protobuf.SoundExtractorApi</code>
+ * Generated from protobuf message <code>App.Protobuf.ApiToSubtitleGenerator</code>
  */
-class SoundExtractorApi extends \Google\Protobuf\Internal\Message
+class ApiToSubtitleGenerator extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>.App.Protobuf.MediaPod mediaPod = 1;</code>

@@ -35,7 +35,7 @@ services:
         networks:
             - api_network
         env_file:
-            - .env
+            - .env.local
         volumes:
             - database_data:/var/lib/postgresql/data
         ports:
@@ -64,7 +64,7 @@ services:
     
     minio:
         env_file:
-            - .env
+            - .env.local
         container_name: ${PROJECT_NAME}-s3
         image: minio/minio:latest
         ports:
@@ -76,8 +76,6 @@ services:
             - minio_data:/data/minio
         command: 'minio server /data/minio --console-address ":9001"'
         environment:
-            MINIO_ROOT_USER: ${S3_USER}
-            MINIO_ROOT_PASSWORD: ${S3_PASSWORD}
             MINIO_DEFAULT_BUCKETS: ${S3_DEFAULT_BUCKETS}
 
 networks:

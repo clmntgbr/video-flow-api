@@ -6,6 +6,7 @@ use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Enum\MediaPodStatus;
 use App\Protobuf\ApiSoundExtractor;
+use App\Protobuf\ApiToSoundExtractor;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;
@@ -129,11 +130,11 @@ class UploadVideoService
         $protoMediaPod->setOriginalVideo($protoVideo);
         $protoMediaPod->setStatus(MediaPodStatus::SOUND_EXTRACTOR_PENDING->getValue());
 
-        $apiSoundExtractor = new ApiSoundExtractor();
-        $apiSoundExtractor->setMediaPod($protoMediaPod);
+        $apiToSoundExtractor = new ApiToSoundExtractor();
+        $apiToSoundExtractor->setMediaPod($protoMediaPod);
 
-        $this->messageBus->dispatch($apiSoundExtractor, [
-            new AmqpStamp('api_sound_extractor', 0, []),
+        $this->messageBus->dispatch($apiToSoundExtractor, [
+            new AmqpStamp('api_to_sound_extractor', 0, []),
         ]);
     }
 }

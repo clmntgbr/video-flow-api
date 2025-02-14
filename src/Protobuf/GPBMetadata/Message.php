@@ -16,23 +16,23 @@ class Message
         }
         $pool->internalAddGeneratedFile(
             '
-ë
-Message.protoApp.Protobuf"=
-ApiSoundExtractor(
-mediaPod (2.App.Protobuf.MediaPod"=
-SoundExtractorApi(
-mediaPod (2.App.Protobuf.MediaPod"@
-ApiSubtitleGenerator(
-mediaPod (2.App.Protobuf.MediaPod"@
-SubtitleGeneratorApi(
-mediaPod (2.App.Protobuf.MediaPod"=
-ApiSubtitleMerger(
-mediaPod (2.App.Protobuf.MediaPod"=
-SubtitleMergerApi(
+û
+Message.protoApp.Protobuf"?
+ApiToSoundExtractor(
+mediaPod (2.App.Protobuf.MediaPod"?
+SoundExtractorToApi(
 mediaPod (2.App.Protobuf.MediaPod"B
-ApiSubtitleIncrustator(
+ApiToSubtitleGenerator(
 mediaPod (2.App.Protobuf.MediaPod"B
-SubtitleIncrustatorApi(
+SubtitleGeneratorToApi(
+mediaPod (2.App.Protobuf.MediaPod"?
+ApiToSubtitleMerger(
+mediaPod (2.App.Protobuf.MediaPod"?
+SubtitleMergerToApi(
+mediaPod (2.App.Protobuf.MediaPod"D
+ApiToSubtitleIncrustator(
+mediaPod (2.App.Protobuf.MediaPod"D
+SubtitleIncrustatorToApi(
 mediaPod (2.App.Protobuf.MediaPod"Š
 MediaPod
 uuid (	
