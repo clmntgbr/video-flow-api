@@ -42,11 +42,10 @@ npm:
 cache:
 	$(PHP) rm -r var/cache
 
-## Entering php shell
+## Entering shells
 php:
 	@$(DOCKER_COMPOSE) exec php sh
 
-## Entering database shell
 database:
 	@$(DOCKER_COMPOSE) exec database sh
 
@@ -54,9 +53,14 @@ database:
 install:
 	$(PHP) composer install
 
-## Composer update
 update:
 	$(PHP) composer update
+
+dotenv:
+	$(PHP) php bin/console debug:dotenv
+
+jwt: 
+	$(PHP) php bin/console lexik:jwt:generate-keypair --skip-if-exists
 
 fabric: 
 	$(PHP) php bin/console messenger:setup-transports

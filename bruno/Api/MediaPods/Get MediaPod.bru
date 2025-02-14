@@ -1,0 +1,15 @@
+meta {
+  name: Get MediaPod
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_url}}api/media_pods/fc4f1d16-fab6-40fd-80c1-c0968685c432
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

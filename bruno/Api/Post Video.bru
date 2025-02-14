@@ -1,0 +1,19 @@
+meta {
+  name: Post Video
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{api_url}}api/media-pods/video/upload
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  video: @file()
+}
