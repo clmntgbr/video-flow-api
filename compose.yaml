@@ -34,8 +34,6 @@ services:
         container_name: ${PROJECT_NAME}-db
         networks:
             - api_network
-        env_file:
-            - .env.local
         volumes:
             - database_data:/var/lib/postgresql/data
         ports:
@@ -63,8 +61,6 @@ services:
             - "9003:15672"
     
     minio:
-        env_file:
-            - .env.local
         container_name: ${PROJECT_NAME}-s3
         image: minio/minio:latest
         ports:
