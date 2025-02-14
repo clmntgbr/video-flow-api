@@ -16,6 +16,12 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
+      - 
+        name: Replace .env var
+        run: sed -i "s|PROJECT_NAME=\${BASE_PROJECT_NAME}|PROJECT_NAME=${{ secrets.BASE_PROJECT_NAME }}|g" .env
+      - 
+        name: Vérification du contenu du fichier
+        run: cat .env
       -
         name: Checkout
         uses: actions/checkout@v4
