@@ -12,9 +12,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  tests:
+  tests:  
     name: Tests
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       -
         name: Checkout
