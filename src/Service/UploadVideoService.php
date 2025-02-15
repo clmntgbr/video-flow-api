@@ -30,7 +30,7 @@ class UploadVideoService
         private Security $security,
         private MediaPodRepository $mediaPodRepository,
         private VideoRepository $videoRepository,
-        private MessageBusInterface $messageBus,
+        private ProtobufService $protobufService
     ) {
     }
 
@@ -82,7 +82,7 @@ class UploadVideoService
             }
 
             $mediaPod = $this->createMediaPod($file, $fileName, $mediaPodUuid);
-            $this->sendToSoundExtractor($file, $mediaPod, $user, $fileName);
+            $this->protobufService->toSoundExtractor($file, $mediaPod, $user, $fileName);
 
             return new JsonResponse([
                 'message' => 'Video uploaded successfully.',
@@ -115,26 +115,5 @@ class UploadVideoService
         ]);
 
         return $mediaPod;
-    }
-
-    public function sendToSoundExtractor(UploadedFile $uploadedFile, MediaPod $mediaPod, User $user, string $fileName): void
-    {
-        $protoVideo = new ProtoVideo();
-        $protoVideo->setName($fileName);
-        $protoVideo->setMimeType($uploadedFile->getMimeType());
-        $protoVideo->setSize($uploadedFile->getSize());
-
-        $protoMediaPod = new ProtoMediaPod();
-        $protoMediaPod->setUuid($mediaPod->getUuid());
-        $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setStatus(MediaPodStatus::SOUND_EXTRACTOR_PENDING->getValue());
-
-        $apiToSoundExtractor = new ApiToSoundExtractor();
-        $apiToSoundExtractor->setMediaPod($protoMediaPod);
-
-        $this->messageBus->dispatch($apiToSoundExtractor, [
-            new AmqpStamp('api_to_sound_extractor', 0, []),
-        ]);
     }
 }
