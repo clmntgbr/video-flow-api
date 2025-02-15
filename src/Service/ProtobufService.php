@@ -6,7 +6,9 @@ use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Enum\MediaPodStatus;
 use App\Protobuf\ApiToSoundExtractor;
+use App\Protobuf\ApiToSubtitleGenerator;
 use App\Protobuf\MediaPod as ProtoMediaPod;
+use App\Protobuf\SoundExtractorToApi;
 use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
@@ -37,6 +39,17 @@ class ProtobufService
 
         $this->messageBus->dispatch($apiToSoundExtractor, [
             new AmqpStamp('api_to_sound_extractor', 0, []),
+        ]);
+    }
+
+    public function toSubtitleGenerator(SoundExtractorToApi $soundExtractorToApi): void
+    {
+        $apiToSubtitleGenerator = new ApiToSubtitleGenerator();
+        $mediaPod = $soundExtractorToApi->getMediaPod();
+        $apiToSubtitleGenerator->setMediaPod($mediaPod);
+
+        $this->messageBus->dispatch($apiToSubtitleGenerator, [
+            new AmqpStamp('api_to_subtitle_generator', 0, []),
         ]);
     }
 }

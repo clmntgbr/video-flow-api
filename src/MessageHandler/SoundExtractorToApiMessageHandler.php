@@ -6,6 +6,7 @@ use App\Entity\MediaPod;
 use App\Enum\MediaPodStatus;
 use App\Protobuf\SoundExtractorToApi;
 use App\Repository\MediaPodRepository;
+use App\Service\ProtobufService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -17,6 +18,7 @@ final class SoundExtractorToApiMessageHandler
         private LoggerInterface $logger,
         private MediaPodRepository $mediaPodRepository,
         private MessageBusInterface $messageBus,
+        private ProtobufService $protobufService
     ) {
     }
 
@@ -54,5 +56,7 @@ final class SoundExtractorToApiMessageHandler
             'statuses' => [$status, MediaPodStatus::SUBTITLE_GENERATOR_PENDING->getValue()],
             'status' => MediaPodStatus::SUBTITLE_GENERATOR_PENDING->getValue(),
         ]);
+
+        $this->protobufService->toSubtitleGenerator($soundExtractorToApi);
     }
 }
