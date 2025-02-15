@@ -22,10 +22,12 @@ jobs:
         uses: actions/checkout@v4
       - 
         name: Replace .env var
-        run: sed -i "s|PROJECT_NAME=\${BASE_PROJECT_NAME}|PROJECT_NAME=${{ secrets.BASE_PROJECT_NAME }}|g" .env
+        run: |
+          cp .env .env.local
+          sed -i "s|PROJECT_NAME=\${BASE_PROJECT_NAME}|PROJECT_NAME=${{ secrets.BASE_PROJECT_NAME }}|g" .env.local
       - 
-        name: Vérification du contenu du fichier
-        run: cat .env
+        name: Vérification du contenu du fichier .env.local
+        run: cat .env.local
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
