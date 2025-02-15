@@ -5,10 +5,6 @@ namespace App\Service;
 use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Enum\MediaPodStatus;
-use App\Protobuf\ApiSoundExtractor;
-use App\Protobuf\ApiToSoundExtractor;
-use App\Protobuf\MediaPod as ProtoMediaPod;
-use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;
 use App\Repository\VideoRepository;
 use League\Flysystem\FilesystemOperator;
@@ -16,8 +12,6 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -30,7 +24,7 @@ class UploadVideoService
         private Security $security,
         private MediaPodRepository $mediaPodRepository,
         private VideoRepository $videoRepository,
-        private ProtobufService $protobufService
+        private ProtobufService $protobufService,
     ) {
     }
 
