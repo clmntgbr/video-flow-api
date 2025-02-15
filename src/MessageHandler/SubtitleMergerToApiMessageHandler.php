@@ -5,7 +5,7 @@ namespace App\MessageHandler;
 use App\Entity\MediaPod;
 use App\Enum\MediaPodStatus;
 use App\Protobuf\SoundExtractorToApi;
-use App\Protobuf\SubtitleGeneratorToApi;
+use App\Protobuf\SubtitleMergerToApi;
 use App\Repository\MediaPodRepository;
 use App\Service\ProtobufService;
 use Psr\Log\LoggerInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
-final class SubtitleGeneratorToApiMessageHandler
+final class SubtitleMergerToApiMessageHandler
 {
     public function __construct(
         private LoggerInterface $logger,
@@ -23,22 +23,22 @@ final class SubtitleGeneratorToApiMessageHandler
     ) {
     }
 
-    public function __invoke(SubtitleGeneratorToApi $subtitleGeneratorToApi): void
+    public function __invoke(SubtitleMergerToApi $subtitleMergerToApi): void
     {
         $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received SubtitleGeneratorToApi message with mediaPod uuid : %s', $subtitleGeneratorToApi->getMediaPod()->getUuid()));
+        $this->logger->info(sprintf('Received SubtitleMergerToApi message with mediaPod uuid : %s', $subtitleMergerToApi->getMediaPod()->getUuid()));
 
         $mediaPod = $this->mediaPodRepository->findOneBy([
-            'uuid' => $subtitleGeneratorToApi->getMediaPod()->getUuid(),
+            'uuid' => $subtitleMergerToApi->getMediaPod()->getUuid(),
         ]);
 
         if (!$mediaPod instanceof MediaPod) {
             return;
         }
 
-        $status = $subtitleGeneratorToApi->getMediaPod()->getStatus();
+        $status = $subtitleMergerToApi->getMediaPod()->getStatus();
         
-        if ($status !== MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE->getValue()) {
+        if ($status !== MediaPodStatus::SUBTITLE_MERGER_COMPLETE->getValue()) {
             $this->mediaPodRepository->update($mediaPod, [
                 'statuses' => [$status],
                 'status' => $status,
@@ -46,16 +46,14 @@ final class SubtitleGeneratorToApiMessageHandler
             return;
         }
 
-        $mediaPod->getOriginalVideo()->setSubtitles([]);
-        foreach ($subtitleGeneratorToApi->getMediaPod()->getOriginalVideo()->getSubtitles()->getIterator() as $iterator) {
-            $mediaPod->getOriginalVideo()->addSubtitles($iterator);
-        }
+        $mediaPod->getOriginalVideo()->setSubtitle($subtitleMergerToApi->getMediaPod()->getOriginalVideo()->getSubtitle());
+    
 
         $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::SUBTITLE_MERGER_PENDING->getValue()],
-            'status' => MediaPodStatus::SUBTITLE_MERGER_PENDING->getValue(),
+            'statuses' => [$status, MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING->getValue()],
+            'status' => MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING->getValue(),
         ]);
 
-        $this->protobufService->toSubtitleMerger($subtitleGeneratorToApi);
+        $this->protobufService->toSubtitleIncrustator($subtitleMergerToApi);
     }
 }

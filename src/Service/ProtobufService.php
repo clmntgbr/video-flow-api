@@ -7,10 +7,13 @@ use App\Entity\User;
 use App\Enum\MediaPodStatus;
 use App\Protobuf\ApiToSoundExtractor;
 use App\Protobuf\ApiToSubtitleGenerator;
+use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToSubtitleMerger;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\SoundExtractorToApi;
 use App\Protobuf\SubtitleGeneratorToApi;
+use App\Protobuf\SubtitleIncrustatorToApi;
+use App\Protobuf\SubtitleMergerToApi;
 use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
@@ -63,6 +66,17 @@ class ProtobufService
 
         $this->messageBus->dispatch($apiToSubtitleMerger, [
             new AmqpStamp('api_to_subtitle_merger', 0, []),
+        ]);
+    }
+
+    public function toSubtitleIncrustator(SubtitleMergerToApi $subtitleMergerToApi): void
+    {
+        $apiToSubtitleIncrustator = new ApiToSubtitleIncrustator();
+        $mediaPod = $subtitleMergerToApi->getMediaPod();
+        $apiToSubtitleIncrustator->setMediaPod($mediaPod);
+
+        $this->messageBus->dispatch($apiToSubtitleIncrustator, [
+            new AmqpStamp('api_to_subtitle_incrustator', 0, []),
         ]);
     }
 }
