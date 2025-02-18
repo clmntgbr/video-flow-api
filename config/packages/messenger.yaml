@@ -73,6 +73,30 @@ framework:
                         subtitle_merger_to_api:
                             binding_keys: [subtitle_merger_to_api]
 
+            api_to_subtitle_transformer:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_subtitle_transformer:
+                            binding_keys: [api_to_subtitle_transformer]
+
+            subtitle_transformer_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        subtitle_transformer_to_api:
+                            binding_keys: [subtitle_transformer_to_api]
+
             api_to_subtitle_incrustator:
                 dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
                 serializer: App\Messenger\Serializer\ProtobufSerializer
@@ -104,5 +128,7 @@ framework:
             'App\Protobuf\SubtitleGeneratorToApi': subtitle_generator_to_api
             'App\Protobuf\ApiToSubtitleMerger': api_to_subtitle_merger
             'App\Protobuf\SubtitleMergerToApi': subtitle_merger_to_api
+            'App\Protobuf\ApiToSubtitleTransformer': api_to_subtitle_transformer
+            'App\Protobuf\SubtitleTransformerToApi': subtitle_transformer_to_api
             'App\Protobuf\ApiToSubtitleIncrustator': api_to_subtitle_incrustator
             'App\Protobuf\SubtitleIncrustatorToApi': subtitle_incrustator_to_api

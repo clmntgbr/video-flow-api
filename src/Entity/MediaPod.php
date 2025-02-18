@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\ApiResource\UploadVideoAction;
 use App\Entity\Traits\UuidTrait;
-use App\Enum\MediaPodStatus;
+use App\Protobuf\MediaPodStatus;
 use App\Repository\MediaPodRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -64,7 +64,7 @@ class MediaPod
 
     public function __construct()
     {
-        $this->status = MediaPodStatus::UPLOAD_COMPLETE->getValue();
+        $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
     }
 
     public function getOriginalVideo(): ?Video

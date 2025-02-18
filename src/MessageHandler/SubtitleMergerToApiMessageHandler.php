@@ -3,8 +3,7 @@
 namespace App\MessageHandler;
 
 use App\Entity\MediaPod;
-use App\Enum\MediaPodStatus;
-use App\Protobuf\SoundExtractorToApi;
+use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SubtitleMergerToApi;
 use App\Repository\MediaPodRepository;
 use App\Service\ProtobufService;
@@ -19,7 +18,7 @@ final class SubtitleMergerToApiMessageHandler
         private LoggerInterface $logger,
         private MediaPodRepository $mediaPodRepository,
         private MessageBusInterface $messageBus,
-        private ProtobufService $protobufService
+        private ProtobufService $protobufService,
     ) {
     }
 
@@ -37,23 +36,23 @@ final class SubtitleMergerToApiMessageHandler
         }
 
         $status = $subtitleMergerToApi->getMediaPod()->getStatus();
-        
-        if ($status !== MediaPodStatus::SUBTITLE_MERGER_COMPLETE->getValue()) {
+
+        if (MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE) !== $status) {
             $this->mediaPodRepository->update($mediaPod, [
                 'statuses' => [$status],
                 'status' => $status,
             ]);
+
             return;
         }
 
         $mediaPod->getOriginalVideo()->setSubtitle($subtitleMergerToApi->getMediaPod()->getOriginalVideo()->getSubtitle());
-    
 
         $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING->getValue()],
-            'status' => MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING->getValue(),
+            'statuses' => [$status, MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING)],
+            'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING),
         ]);
 
-        $this->protobufService->toSubtitleIncrustator($subtitleMergerToApi);
+        $this->protobufService->toSubtitleTransformer($subtitleMergerToApi);
     }
 }

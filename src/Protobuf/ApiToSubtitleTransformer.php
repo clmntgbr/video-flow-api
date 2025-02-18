@@ -8,9 +8,9 @@ namespace App\Protobuf;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>App.Protobuf.ApiToSubtitleMerger</code>.
+ * Generated from protobuf message <code>App.Protobuf.ApiToSubtitleTransformer</code>.
  */
-class ApiToSubtitleMerger extends \Google\Protobuf\Internal\Message
+class ApiToSubtitleTransformer extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>.App.Protobuf.MediaPod mediaPod = 1;</code>.

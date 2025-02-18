@@ -6,7 +6,6 @@ use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Protobuf\MediaPod as ProtoMediaPod;
-use App\Protobuf\SubtitleGeneratorApi;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;

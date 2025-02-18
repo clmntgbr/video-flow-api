@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\MediaPod;
 use App\Entity\User;
-use App\Enum\MediaPodStatus;
+use App\Protobuf\MediaPodStatus;
 use App\Repository\MediaPodRepository;
 use App\Repository\VideoRepository;
 use League\Flysystem\FilesystemOperator;
@@ -101,10 +101,10 @@ class UploadVideoService
             'user' => $this->security->getUser(),
             'uuid' => $mediaPodUuid,
             'originalVideo' => $video,
-            'status' => MediaPodStatus::SOUND_EXTRACTOR_PENDING->getValue(),
+            'status' => MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
             'statuses' => [
-                MediaPodStatus::UPLOAD_COMPLETE->getValue(),
-                MediaPodStatus::SOUND_EXTRACTOR_PENDING->getValue(),
+                MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE),
+                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
             ],
         ]);
 

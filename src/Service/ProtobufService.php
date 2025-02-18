@@ -4,15 +4,15 @@ namespace App\Service;
 
 use App\Entity\MediaPod;
 use App\Entity\User;
-use App\Enum\MediaPodStatus;
 use App\Protobuf\ApiToSoundExtractor;
 use App\Protobuf\ApiToSubtitleGenerator;
 use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToSubtitleMerger;
+use App\Protobuf\ApiToSubtitleTransformer;
 use App\Protobuf\MediaPod as ProtoMediaPod;
+use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SoundExtractorToApi;
 use App\Protobuf\SubtitleGeneratorToApi;
-use App\Protobuf\SubtitleIncrustatorToApi;
 use App\Protobuf\SubtitleMergerToApi;
 use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -37,7 +37,7 @@ class ProtobufService
         $protoMediaPod->setUuid($mediaPod->getUuid());
         $protoMediaPod->setUserUuid($user->getUuid());
         $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setStatus(MediaPodStatus::SOUND_EXTRACTOR_PENDING->getValue());
+        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING));
 
         $apiToSoundExtractor = new ApiToSoundExtractor();
         $apiToSoundExtractor->setMediaPod($protoMediaPod);
@@ -77,6 +77,17 @@ class ProtobufService
 
         $this->messageBus->dispatch($apiToSubtitleIncrustator, [
             new AmqpStamp('api_to_subtitle_incrustator', 0, []),
+        ]);
+    }
+
+    public function toSubtitleTransformer(SubtitleMergerToApi $subtitleMergerToApi): void
+    {
+        $apiToSubtitleTransformer = new ApiToSubtitleTransformer();
+        $mediaPod = $subtitleMergerToApi->getMediaPod();
+        $apiToSubtitleTransformer->setMediaPod($mediaPod);
+
+        $this->messageBus->dispatch($apiToSubtitleTransformer, [
+            new AmqpStamp('api_to_subtitle_transformer', 0, []),
         ]);
     }
 }

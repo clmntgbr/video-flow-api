@@ -3,7 +3,7 @@
 namespace App\MessageHandler;
 
 use App\Entity\MediaPod;
-use App\Enum\MediaPodStatus;
+use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SoundExtractorToApi;
 use App\Repository\MediaPodRepository;
 use App\Service\ProtobufService;
@@ -18,7 +18,7 @@ final class SoundExtractorToApiMessageHandler
         private LoggerInterface $logger,
         private MediaPodRepository $mediaPodRepository,
         private MessageBusInterface $messageBus,
-        private ProtobufService $protobufService
+        private ProtobufService $protobufService,
     ) {
     }
 
@@ -36,12 +36,13 @@ final class SoundExtractorToApiMessageHandler
         }
 
         $status = $soundExtractorToApi->getMediaPod()->getStatus();
-        
-        if ($status !== MediaPodStatus::SOUND_EXTRACTOR_COMPLETE->getValue()) {
+
+        if (MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE) !== $status) {
             $this->mediaPodRepository->update($mediaPod, [
                 'statuses' => [$status],
                 'status' => $status,
             ]);
+
             return;
         }
 
@@ -53,8 +54,8 @@ final class SoundExtractorToApiMessageHandler
         $mediaPod->getOriginalVideo()->setLength($soundExtractorToApi->getMediaPod()->getOriginalVideo()->getLength());
 
         $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::SUBTITLE_GENERATOR_PENDING->getValue()],
-            'status' => MediaPodStatus::SUBTITLE_GENERATOR_PENDING->getValue(),
+            'statuses' => [$status, MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING)],
+            'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING),
         ]);
 
         $this->protobufService->toSubtitleGenerator($soundExtractorToApi);
