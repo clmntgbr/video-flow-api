@@ -54,6 +54,11 @@ class MediaPod
     #[Groups(['media-pods:get'])]
     private ?Video $video = null;
 
+    #[ORM\OneToOne(targetEntity: Preset::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'preset_id', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['media-pods:get'])]
+    private ?Preset $preset = null;
+
     #[ORM\Column(type: Types::STRING)]
     #[Groups(['media-pods:get'])]
     private ?string $status = null;
@@ -147,6 +152,18 @@ class MediaPod
     public function setVideo(?Video $video): static
     {
         $this->video = $video;
+
+        return $this;
+    }
+
+    public function getPreset(): ?Preset
+    {
+        return $this->preset;
+    }
+
+    public function setPreset(?Preset $preset): static
+    {
+        $this->preset = $preset;
 
         return $this;
     }

@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Dto;
+
+class UploadVideoPreset
+{
+    public ?string $subtitleFont = null;
+    public ?string $subtitleSize = null;
+    public ?string $subtitleColor = null;
+    public ?string $subtitleBackground = null;
+    public ?string $subtitleOutlineColor = null;
+    public ?string $subtitleOutlineThickness = null;
+    public ?string $subtitleShadow = null;
+    public ?string $subtitleShadowColor = null;
+}

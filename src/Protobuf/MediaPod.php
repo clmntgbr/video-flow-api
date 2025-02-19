@@ -32,6 +32,10 @@ class MediaPod extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string status = 5;</code>.
      */
     protected $status = '';
+    /**
+     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 6;</code>.
+     */
+    protected $preset;
 
     /**
      * Constructor.
@@ -44,6 +48,7 @@ class MediaPod extends \Google\Protobuf\Internal\Message
      * @var Video  $originalVideo
      * @var Video  $video
      * @var string $status
+     * @var Preset $preset
      *             }
      */
     public function __construct($data = null)
@@ -193,6 +198,41 @@ class MediaPod extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, true);
         $this->status = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 6;</code>.
+     *
+     * @return Preset|null
+     */
+    public function getPreset()
+    {
+        return $this->preset;
+    }
+
+    public function hasPreset()
+    {
+        return isset($this->preset);
+    }
+
+    public function clearPreset()
+    {
+        unset($this->preset);
+    }
+
+    /**
+     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 6;</code>.
+     *
+     * @param Preset $var
+     *
+     * @return $this
+     */
+    public function setPreset($var)
+    {
+        GPBUtil::checkMessage($var, Preset::class);
+        $this->preset = $var;
 
         return $this;
     }

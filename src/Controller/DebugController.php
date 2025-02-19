@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\MediaPod;
+use App\Entity\Preset;
 use App\Entity\User;
 use App\Entity\Video;
 use App\Protobuf\MediaPod as ProtoMediaPod;
+use App\Protobuf\MediaPodStatus;
+use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;
@@ -48,12 +51,22 @@ class DebugController extends AbstractController
                 'updatedAt' => '2025-02-08T21:08:54+00:00',
                 'uuid' => '7fb5d19e-002a-49d6-ba06-5f9f879137f7',
             ],
+            'preset' => [
+                'subtitleFont' => 'ARIAL',
+                'subtitleSize' => '18',
+                'subtitleColor' => '#008000',
+                'subtitleBackground' => '#FF0000',
+                'subtitleOutlineColor' => '#FFFF00',
+                'subtitleOutlineThickness' => '3',
+                'subtitleShadow' => 'NONE',
+                'subtitleShadowColor' => '#0000FF',
+            ],
             'status' => 'subtitle_generator_pending',
             'statuses' => [
-                'upload_complete',
-                'sound_extractor_pending',
-                'sound_extractor_complete',
-                'subtitle_generator_pending',
+                MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE),
+                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
+                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE),
+                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
             ],
             'createdAt' => '2025-02-08T21:08:34+00:00',
             'updatedAt' => '2025-02-08T21:08:54+00:00',
@@ -74,11 +87,22 @@ class DebugController extends AbstractController
             $video->setCreatedAt(new \DateTime($mediaPodData['originalVideo']['createdAt']));
             $video->setUpdatedAt(new \DateTime($mediaPodData['originalVideo']['updatedAt']));
 
+            $preset = new Preset();
+            $preset->setSubtitleFont($mediaPodData['preset']['subtitleFont']);
+            $preset->setSubtitleSize($mediaPodData['preset']['subtitleSize']);
+            $preset->setSubtitleColor($mediaPodData['preset']['subtitleColor']);
+            $preset->setSubtitleBackground($mediaPodData['preset']['subtitleBackground']);
+            $preset->setSubtitleOutlineColor($mediaPodData['preset']['subtitleOutlineColor']);
+            $preset->setSubtitleOutlineThickness($mediaPodData['preset']['subtitleOutlineThickness']);
+            $preset->setSubtitleShadow($mediaPodData['preset']['subtitleShadow']);
+            $preset->setSubtitleShadowColor($mediaPodData['preset']['subtitleShadowColor']);
+
             $mediaPod = new MediaPod();
             $mediaPod->setUser($user);
             $mediaPod->setUuid($mediaPodData['uuid']);
             $mediaPod->setVideoName($mediaPodData['videoName']);
             $mediaPod->setOriginalVideo($video);
+            $mediaPod->setPreset($preset);
             $mediaPod->setStatus($mediaPodData['status']);
             $mediaPod->setStatuses($mediaPodData['statuses']);
             $mediaPod->setCreatedAt(new \DateTime($mediaPodData['createdAt']));
@@ -171,11 +195,22 @@ class DebugController extends AbstractController
             '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
         ]);
 
+        $protoPreset = new ProtoPreset();
+        $protoPreset->setSubtitleFont($mediaPodData['preset']['subtitleFont']);
+        $protoPreset->setSubtitleSize($mediaPodData['preset']['subtitleSize']);
+        $protoPreset->setSubtitleColor($mediaPodData['preset']['subtitleColor']);
+        $protoPreset->setSubtitleBackground($mediaPodData['preset']['subtitleBackground']);
+        $protoPreset->setSubtitleOutlineColor($mediaPodData['preset']['subtitleOutlineColor']);
+        $protoPreset->setSubtitleOutlineThickness($mediaPodData['preset']['subtitleOutlineThickness']);
+        $protoPreset->setSubtitleShadow($mediaPodData['preset']['subtitleShadow']);
+        $protoPreset->setSubtitleShadowColor($mediaPodData['preset']['subtitleShadowColor']);
+
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPodData['uuid']);
         $protoMediaPod->setUserUuid($user->getUuid());
         $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setStatus('subtitle_generator_complete');
+        $protoMediaPod->setPreset($protoPreset);
+        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE));
 
         $subtitleGeneratorApi = new SubtitleGeneratorToApi();
         $subtitleGeneratorApi->setMediaPod($protoMediaPod);

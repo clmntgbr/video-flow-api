@@ -9,35 +9,20 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Preset>
  */
-class PresetRepository extends ServiceEntityRepository
+class PresetRepository extends AbstractRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Preset::class);
     }
 
-    //    /**
-    //     * @return Preset[] Returns an array of Preset objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function create(array $data): Preset
+    {
+        $entity = new Preset();
 
-    //    public function findOneBySomeField($value): ?Preset
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        /** @var Preset $entity */
+        $entity = $this->update($entity, $data);
+
+        return $entity;
+    }
 }

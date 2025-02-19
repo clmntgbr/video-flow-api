@@ -44,14 +44,6 @@ class Preset extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string subtitleShadowColor = 8;</code>.
      */
     protected $subtitleShadowColor = '';
-    /**
-     * Generated from protobuf field <code>string videoResolution = 9;</code>.
-     */
-    protected $videoResolution = '';
-    /**
-     * Generated from protobuf field <code>string videoAspectRatio = 10;</code>.
-     */
-    protected $videoAspectRatio = '';
 
     /**
      * Constructor.
@@ -67,8 +59,6 @@ class Preset extends \Google\Protobuf\Internal\Message
      * @var string $subtitleOutlineThickness
      * @var string $subtitleShadow
      * @var string $subtitleShadowColor
-     * @var string $videoResolution
-     * @var string $videoAspectRatio
      *             }
      */
     public function __construct($data = null)
@@ -273,56 +263,6 @@ class Preset extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, true);
         $this->subtitleShadowColor = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string videoResolution = 9;</code>.
-     *
-     * @return string
-     */
-    public function getVideoResolution()
-    {
-        return $this->videoResolution;
-    }
-
-    /**
-     * Generated from protobuf field <code>string videoResolution = 9;</code>.
-     *
-     * @param string $var
-     *
-     * @return $this
-     */
-    public function setVideoResolution($var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->videoResolution = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string videoAspectRatio = 10;</code>.
-     *
-     * @return string
-     */
-    public function getVideoAspectRatio()
-    {
-        return $this->videoAspectRatio;
-    }
-
-    /**
-     * Generated from protobuf field <code>string videoAspectRatio = 10;</code>.
-     *
-     * @param string $var
-     *
-     * @return $this
-     */
-    public function setVideoAspectRatio($var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->videoAspectRatio = $var;
 
         return $this;
     }

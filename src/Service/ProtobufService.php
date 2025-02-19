@@ -11,6 +11,7 @@ use App\Protobuf\ApiToSubtitleMerger;
 use App\Protobuf\ApiToSubtitleTransformer;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
+use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\SoundExtractorToApi;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\SubtitleMergerToApi;
@@ -33,10 +34,21 @@ class ProtobufService
         $protoVideo->setMimeType($uploadedFile->getMimeType());
         $protoVideo->setSize($uploadedFile->getSize());
 
+        $protoPreset = new ProtoPreset();
+        $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
+        $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
+        $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
+        $protoPreset->setSubtitleBackground($mediaPod->getPreset()->getSubtitleBackground());
+        $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
+        $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
+        $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
+        $protoPreset->setSubtitleShadow($mediaPod->getPreset()->getSubtitleShadow());
+
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPod->getUuid());
         $protoMediaPod->setUserUuid($user->getUuid());
         $protoMediaPod->setOriginalVideo($protoVideo);
+        $protoMediaPod->setPreset($protoPreset);
         $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING));
 
         $apiToSoundExtractor = new ApiToSoundExtractor();

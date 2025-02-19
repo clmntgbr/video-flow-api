@@ -2,10 +2,12 @@
 
 namespace App\Service;
 
+use App\Dto\UploadVideoPreset;
 use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Protobuf\MediaPodStatus;
 use App\Repository\MediaPodRepository;
+use App\Repository\PresetRepository;
 use App\Repository\VideoRepository;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -24,11 +26,12 @@ class UploadVideoService
         private Security $security,
         private MediaPodRepository $mediaPodRepository,
         private VideoRepository $videoRepository,
+        private PresetRepository $presetRepository,
         private ProtobufService $protobufService,
     ) {
     }
 
-    public function upload(UploadedFile $file): JsonResponse
+    public function upload(UploadedFile $file, UploadVideoPreset $uploadVideoPreset): JsonResponse
     {
         $constraints = new File([
             'mimeTypes' => [
@@ -75,7 +78,7 @@ class UploadVideoService
                 fclose($stream);
             }
 
-            $mediaPod = $this->createMediaPod($file, $fileName, $mediaPodUuid);
+            $mediaPod = $this->createMediaPod($file, $uploadVideoPreset, $fileName, $mediaPodUuid);
             $this->protobufService->toSoundExtractor($file, $mediaPod, $user, $fileName);
 
             return new JsonResponse([
@@ -88,7 +91,7 @@ class UploadVideoService
         }
     }
 
-    private function createMediaPod(UploadedFile $uploadedFile, string $fileName, string $mediaPodUuid): MediaPod
+    private function createMediaPod(UploadedFile $uploadedFile, UploadVideoPreset $uploadVideoPreset, string $fileName, string $mediaPodUuid): MediaPod
     {
         $video = $this->videoRepository->create([
             'mimeType' => $uploadedFile->getMimeType(),
@@ -97,10 +100,22 @@ class UploadVideoService
             'size' => $uploadedFile->getSize(),
         ]);
 
+        $preset = $this->presetRepository->create([
+            'subtitleFont' => $uploadVideoPreset->subtitleFont,
+            'subtitleSize' => $uploadVideoPreset->subtitleSize,
+            'subtitleColor' => $uploadVideoPreset->subtitleColor,
+            'subtitleBackground' => $uploadVideoPreset->subtitleBackground,
+            'subtitleOutlineColor' => $uploadVideoPreset->subtitleOutlineColor,
+            'subtitleOutlineThickness' => $uploadVideoPreset->subtitleOutlineThickness,
+            'subtitleShadow' => $uploadVideoPreset->subtitleShadow,
+            'subtitleShadowColor' => $uploadVideoPreset->subtitleShadowColor,
+        ]);
+
         $mediaPod = $this->mediaPodRepository->create([
             'user' => $this->security->getUser(),
             'uuid' => $mediaPodUuid,
             'originalVideo' => $video,
+            'preset' => $preset,
             'status' => MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
             'statuses' => [
                 MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE),

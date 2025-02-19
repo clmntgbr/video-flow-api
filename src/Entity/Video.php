@@ -52,11 +52,6 @@ class Video
     #[Groups(['media-pods:get'])]
     private array $audios = [];
 
-    #[ORM\OneToOne(targetEntity: Preset::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'preset_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['media-pods:get'])]
-    private ?Preset $preset = null;
-
     public function __construct()
     {
         $this->initializeUuid();
@@ -180,18 +175,6 @@ class Video
     public function setLength(?int $length): static
     {
         $this->length = $length;
-
-        return $this;
-    }
-
-    public function getPreset(): ?Preset
-    {
-        return $this->preset;
-    }
-
-    public function setPreset(?Preset $preset): static
-    {
-        $this->preset = $preset;
 
         return $this;
     }

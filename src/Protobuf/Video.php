@@ -46,10 +46,6 @@ class Video extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string audios = 8;</code>.
      */
     private $audios;
-    /**
-     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 9;</code>.
-     */
-    protected $preset;
 
     /**
      * Constructor.
@@ -65,7 +61,6 @@ class Video extends \Google\Protobuf\Internal\Message
      * @var string                      $ass
      * @var array<string>|RepeatedField $subtitles
      * @var array<string>|RepeatedField $audios
-     * @var Preset                      $preset
      *                                  }
      */
     public function __construct($data = null)
@@ -270,41 +265,6 @@ class Video extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, GPBType::STRING);
         $this->audios = $arr;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 9;</code>.
-     *
-     * @return Preset|null
-     */
-    public function getPreset()
-    {
-        return $this->preset;
-    }
-
-    public function hasPreset()
-    {
-        return isset($this->preset);
-    }
-
-    public function clearPreset()
-    {
-        unset($this->preset);
-    }
-
-    /**
-     * Generated from protobuf field <code>.App.Protobuf.Preset preset = 9;</code>.
-     *
-     * @param Preset $var
-     *
-     * @return $this
-     */
-    public function setPreset($var)
-    {
-        GPBUtil::checkMessage($var, Preset::class);
-        $this->preset = $var;
 
         return $this;
     }
