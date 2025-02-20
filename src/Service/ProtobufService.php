@@ -15,6 +15,7 @@ use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\SoundExtractorToApi;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\SubtitleMergerToApi;
+use App\Protobuf\SubtitleTransformerToApi;
 use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
@@ -38,7 +39,9 @@ class ProtobufService
         $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
         $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
         $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
-        $protoPreset->setSubtitleBackground($mediaPod->getPreset()->getSubtitleBackground());
+        $protoPreset->setSubtitleBold($mediaPod->getPreset()->getSubtitleBold());
+        $protoPreset->setSubtitleItalic($mediaPod->getPreset()->getSubtitleItalic());
+        $protoPreset->setSubtitleUnderline($mediaPod->getPreset()->getSubtitleUnderline());
         $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
         $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
         $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
@@ -81,10 +84,10 @@ class ProtobufService
         ]);
     }
 
-    public function toSubtitleIncrustator(SubtitleMergerToApi $subtitleMergerToApi): void
+    public function toSubtitleIncrustator(SubtitleTransformerToApi $subtitleTransformerToApi): void
     {
         $apiToSubtitleIncrustator = new ApiToSubtitleIncrustator();
-        $mediaPod = $subtitleMergerToApi->getMediaPod();
+        $mediaPod = $subtitleTransformerToApi->getMediaPod();
         $apiToSubtitleIncrustator->setMediaPod($mediaPod);
 
         $this->messageBus->dispatch($apiToSubtitleIncrustator, [

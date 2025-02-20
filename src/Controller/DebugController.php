@@ -53,13 +53,15 @@ class DebugController extends AbstractController
             ],
             'preset' => [
                 'subtitleFont' => 'ARIAL',
-                'subtitleSize' => '18',
-                'subtitleColor' => '#008000',
-                'subtitleBackground' => '#FF0000',
-                'subtitleOutlineColor' => '#FFFF00',
-                'subtitleOutlineThickness' => '3',
-                'subtitleShadow' => 'NONE',
-                'subtitleShadowColor' => '#0000FF',
+                'subtitleSize' => '20',
+                'subtitleColor' => '#FFFFFF',
+                'subtitleBold' => '0',
+                'subtitleItalic' => '0',
+                'subtitleUnderline' => '0',
+                'subtitleOutlineColor' => '#000000',
+                'subtitleOutlineThickness' => '2',
+                'subtitleShadow' => '2',
+                'subtitleShadowColor' => '#000000',
             ],
             'status' => 'subtitle_generator_pending',
             'statuses' => [
@@ -88,14 +90,6 @@ class DebugController extends AbstractController
             $video->setUpdatedAt(new \DateTime($mediaPodData['originalVideo']['updatedAt']));
 
             $preset = new Preset();
-            $preset->setSubtitleFont($mediaPodData['preset']['subtitleFont']);
-            $preset->setSubtitleSize($mediaPodData['preset']['subtitleSize']);
-            $preset->setSubtitleColor($mediaPodData['preset']['subtitleColor']);
-            $preset->setSubtitleBackground($mediaPodData['preset']['subtitleBackground']);
-            $preset->setSubtitleOutlineColor($mediaPodData['preset']['subtitleOutlineColor']);
-            $preset->setSubtitleOutlineThickness($mediaPodData['preset']['subtitleOutlineThickness']);
-            $preset->setSubtitleShadow($mediaPodData['preset']['subtitleShadow']);
-            $preset->setSubtitleShadowColor($mediaPodData['preset']['subtitleShadowColor']);
 
             $mediaPod = new MediaPod();
             $mediaPod->setUser($user);
@@ -196,14 +190,16 @@ class DebugController extends AbstractController
         ]);
 
         $protoPreset = new ProtoPreset();
-        $protoPreset->setSubtitleFont($mediaPodData['preset']['subtitleFont']);
-        $protoPreset->setSubtitleSize($mediaPodData['preset']['subtitleSize']);
-        $protoPreset->setSubtitleColor($mediaPodData['preset']['subtitleColor']);
-        $protoPreset->setSubtitleBackground($mediaPodData['preset']['subtitleBackground']);
-        $protoPreset->setSubtitleOutlineColor($mediaPodData['preset']['subtitleOutlineColor']);
-        $protoPreset->setSubtitleOutlineThickness($mediaPodData['preset']['subtitleOutlineThickness']);
-        $protoPreset->setSubtitleShadow($mediaPodData['preset']['subtitleShadow']);
-        $protoPreset->setSubtitleShadowColor($mediaPodData['preset']['subtitleShadowColor']);
+        $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
+        $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
+        $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
+        $protoPreset->setSubtitleBold($mediaPod->getPreset()->getSubtitleBold());
+        $protoPreset->setSubtitleItalic($mediaPod->getPreset()->getSubtitleItalic());
+        $protoPreset->setSubtitleUnderline($mediaPod->getPreset()->getSubtitleUnderline());
+        $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
+        $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
+        $protoPreset->setSubtitleShadow($mediaPod->getPreset()->getSubtitleShadow());
+        $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
 
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPodData['uuid']);

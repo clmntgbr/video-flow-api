@@ -7,32 +7,32 @@ namespace App\Protobuf;
 use UnexpectedValueException;
 
 /**
- * Protobuf type <code>App.Protobuf.PresetSubtitleShadow</code>
+ * Protobuf type <code>App.Protobuf.PresetSubtitleOutlineThickness</code>
  */
-class PresetSubtitleShadow
+class PresetSubtitleOutlineThickness
 {
     /**
-     * Generated from protobuf enum <code>SHADOW_NONE = 0;</code>
+     * Generated from protobuf enum <code>OUTLINE_NONE = 0;</code>
      */
-    const SHADOW_NONE = 0;
+    const OUTLINE_NONE = 0;
     /**
-     * Generated from protobuf enum <code>SHADOW_SOFT = 1;</code>
+     * Generated from protobuf enum <code>OUTLINE_SOFT = 1;</code>
      */
-    const SHADOW_SOFT = 1;
+    const OUTLINE_SOFT = 1;
     /**
-     * Generated from protobuf enum <code>SHADOW_MEDIUM = 2;</code>
+     * Generated from protobuf enum <code>OUTLINE_MEDIUM = 2;</code>
      */
-    const SHADOW_MEDIUM = 2;
+    const OUTLINE_MEDIUM = 2;
     /**
-     * Generated from protobuf enum <code>SHADOW_HARD = 4;</code>
+     * Generated from protobuf enum <code>OUTLINE_HARD = 4;</code>
      */
-    const SHADOW_HARD = 4;
+    const OUTLINE_HARD = 4;
 
     private static $valueToName = [
-        self::SHADOW_NONE => 'SHADOW_NONE',
-        self::SHADOW_SOFT => 'SHADOW_SOFT',
-        self::SHADOW_MEDIUM => 'SHADOW_MEDIUM',
-        self::SHADOW_HARD => 'SHADOW_HARD',
+        self::OUTLINE_NONE => 'OUTLINE_NONE',
+        self::OUTLINE_SOFT => 'OUTLINE_SOFT',
+        self::OUTLINE_MEDIUM => 'OUTLINE_MEDIUM',
+        self::OUTLINE_HARD => 'OUTLINE_HARD',
     ];
 
     public static function name($value)

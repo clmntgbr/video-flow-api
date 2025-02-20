@@ -44,6 +44,10 @@ class Video
     #[Groups(['media-pods:get'])]
     private ?string $subtitle;
 
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups(['media-pods:get'])]
+    private ?string $ass;
+
     #[ORM\Column(type: Types::JSON, nullable: false)]
     #[Groups(['media-pods:get'])]
     private array $subtitles = [];
@@ -175,6 +179,18 @@ class Video
     public function setLength(?int $length): static
     {
         $this->length = $length;
+
+        return $this;
+    }
+
+    public function getAss(): ?string
+    {
+        return $this->ass;
+    }
+
+    public function setAss(?string $ass): static
+    {
+        $this->ass = $ass;
 
         return $this;
     }

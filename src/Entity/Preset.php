@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Traits\UuidTrait;
 use App\Protobuf\PresetSubtitleFont;
+use App\Protobuf\PresetSubtitleOutlineThickness;
 use App\Protobuf\PresetSubtitleShadow;
 use App\Repository\PresetRepository;
 use Doctrine\DBAL\Types\Types;
@@ -33,7 +34,15 @@ class Preset
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['media-pods:get'])]
-    private ?string $subtitleBackground = null;
+    private ?string $subtitleBold = null;
+
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups(['media-pods:get'])]
+    private ?string $subtitleItalic = null;
+
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups(['media-pods:get'])]
+    private ?string $subtitleUnderline = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['media-pods:get'])]
@@ -53,14 +62,16 @@ class Preset
 
     public function __construct()
     {
-        $this->subtitleShadow = PresetSubtitleShadow::name(PresetSubtitleShadow::NONE);
-        $this->subtitleShadowColor = '#000000';
-        $this->subtitleOutlineThickness = '0';
-        $this->subtitleOutlineColor = '#000000';
-        $this->subtitleBackground = '#000000';
-        $this->subtitleColor = '#FFFFFF';
-        $this->subtitleSize = '24';
         $this->subtitleFont = PresetSubtitleFont::name(PresetSubtitleFont::ARIAL);
+        $this->subtitleShadow = (string) PresetSubtitleShadow::SHADOW_MEDIUM;
+        $this->subtitleShadowColor = '#000000';
+        $this->subtitleOutlineThickness = (string) PresetSubtitleOutlineThickness::OUTLINE_MEDIUM;
+        $this->subtitleOutlineColor = '#000000';
+        $this->subtitleBold = '0';
+        $this->subtitleItalic = '0';
+        $this->subtitleUnderline = '0';
+        $this->subtitleColor = '#FFFFFF';
+        $this->subtitleSize = '20';
         $this->initializeUuid();
     }
 
@@ -100,14 +111,14 @@ class Preset
         return $this;
     }
 
-    public function getSubtitleBackground(): ?string
+    public function getSubtitleBold(): ?string
     {
-        return $this->subtitleBackground;
+        return $this->subtitleBold;
     }
 
-    public function setSubtitleBackground(?string $subtitleBackground): static
+    public function setSubtitleBold(?string $subtitleBold): static
     {
-        $this->subtitleBackground = $subtitleBackground;
+        $this->subtitleBold = $subtitleBold;
 
         return $this;
     }
@@ -156,6 +167,30 @@ class Preset
     public function setSubtitleShadowColor(?string $subtitleShadowColor): static
     {
         $this->subtitleShadowColor = $subtitleShadowColor;
+
+        return $this;
+    }
+
+    public function getSubtitleItalic(): ?string
+    {
+        return $this->subtitleItalic;
+    }
+
+    public function setSubtitleItalic(?string $subtitleItalic): static
+    {
+        $this->subtitleItalic = $subtitleItalic;
+
+        return $this;
+    }
+
+    public function getSubtitleUnderline(): ?string
+    {
+        return $this->subtitleUnderline;
+    }
+
+    public function setSubtitleUnderline(?string $subtitleUnderline): static
+    {
+        $this->subtitleUnderline = $subtitleUnderline;
 
         return $this;
     }
