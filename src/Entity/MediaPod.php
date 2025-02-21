@@ -50,9 +50,9 @@ class MediaPod
     private ?Video $originalVideo = null;
 
     #[ORM\OneToOne(targetEntity: Video::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'video_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'processed_video_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['media-pods:get'])]
-    private ?Video $video = null;
+    private ?Video $processedVideo = null;
 
     #[ORM\OneToOne(targetEntity: Preset::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'preset_id', referencedColumnName: 'id', nullable: true)]
@@ -144,18 +144,6 @@ class MediaPod
         return $this;
     }
 
-    public function getVideo(): ?Video
-    {
-        return $this->video;
-    }
-
-    public function setVideo(?Video $video): static
-    {
-        $this->video = $video;
-
-        return $this;
-    }
-
     public function getPreset(): ?Preset
     {
         return $this->preset;
@@ -164,6 +152,18 @@ class MediaPod
     public function setPreset(?Preset $preset): static
     {
         $this->preset = $preset;
+
+        return $this;
+    }
+
+    public function getProcessedVideo(): ?Video
+    {
+        return $this->processedVideo;
+    }
+
+    public function setProcessedVideo(?Video $processedVideo): static
+    {
+        $this->processedVideo = $processedVideo;
 
         return $this;
     }

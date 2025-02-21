@@ -120,15 +120,46 @@ framework:
                     queues:
                         subtitle_incrustator_to_api:
                             binding_keys: [subtitle_incrustator_to_api]
+
+            api_to_video_formatter:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_video_formatter:
+                            binding_keys: [api_to_video_formatter]
+
+            video_formatter_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        video_formatter_to_api:
+                            binding_keys: [video_formatter_to_api]
                             
         routing:
             'App\Protobuf\ApiToSoundExtractor': api_to_sound_extractor
             'App\Protobuf\SoundExtractorToApi': sound_extractor_to_api
+
             'App\Protobuf\ApiToSubtitleGenerator': api_to_subtitle_generator
             'App\Protobuf\SubtitleGeneratorToApi': subtitle_generator_to_api
+
             'App\Protobuf\ApiToSubtitleMerger': api_to_subtitle_merger
             'App\Protobuf\SubtitleMergerToApi': subtitle_merger_to_api
+
             'App\Protobuf\ApiToSubtitleTransformer': api_to_subtitle_transformer
             'App\Protobuf\SubtitleTransformerToApi': subtitle_transformer_to_api
+
             'App\Protobuf\ApiToSubtitleIncrustator': api_to_subtitle_incrustator
             'App\Protobuf\SubtitleIncrustatorToApi': subtitle_incrustator_to_api
+
+            'App\Protobuf\ApiToVideoFormatter': api_to_video_formatter
+            'App\Protobuf\VideoFormatterToApi': video_formatter_to_api

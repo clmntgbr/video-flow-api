@@ -3,7 +3,9 @@
 namespace App\MessageHandler;
 
 use App\Entity\MediaPod;
+use App\Entity\Video;
 use App\Protobuf\MediaPodStatus;
+use App\Protobuf\SubtitleIncrustatorToApi;
 use App\Protobuf\SubtitleTransformerToApi;
 use App\Repository\MediaPodRepository;
 use App\Service\ProtobufService;
@@ -12,7 +14,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
-final class SubtitleTransformerToApiMessageHandler
+final class SubtitleIncrustatorToApiMessageHandler
 {
     public function __construct(
         private LoggerInterface $logger,
@@ -22,22 +24,22 @@ final class SubtitleTransformerToApiMessageHandler
     ) {
     }
 
-    public function __invoke(SubtitleTransformerToApi $subtitleTransformerToApi): void
+    public function __invoke(SubtitleIncrustatorToApi $subtitleIncrustatorToApi): void
     {
         $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received SubtitleTransformerToApi message with mediaPod uuid : %s', $subtitleTransformerToApi->getMediaPod()->getUuid()));
-
+        $this->logger->info(sprintf('Received SubtitleIncrustatorToApi message with mediaPod uuid : %s', $subtitleIncrustatorToApi->getMediaPod()->getUuid()));
+        
         $mediaPod = $this->mediaPodRepository->findOneBy([
-            'uuid' => $subtitleTransformerToApi->getMediaPod()->getUuid(),
+            'uuid' => $subtitleIncrustatorToApi->getMediaPod()->getUuid(),
         ]);
 
         if (!$mediaPod instanceof MediaPod) {
             return;
         }
 
-        $status = $subtitleTransformerToApi->getMediaPod()->getStatus();
+        $status = $subtitleIncrustatorToApi->getMediaPod()->getStatus();
 
-        if (MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE) !== $status) {
+        if (MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE) !== $status) {
             $this->mediaPodRepository->update($mediaPod, [
                 'statuses' => [$status],
                 'status' => $status,
@@ -46,13 +48,17 @@ final class SubtitleTransformerToApiMessageHandler
             return;
         }
 
-        $mediaPod->getOriginalVideo()->setAss($subtitleTransformerToApi->getMediaPod()->getOriginalVideo()->getAss());
+        $video = new Video();
+        $video->setName($subtitleIncrustatorToApi->getMediaPod()->getProcessedVideo()->getName());
+        $video->setOriginalName($mediaPod->getOriginalVideo()->getOriginalName());
+        $video->setMimeType($subtitleIncrustatorToApi->getMediaPod()->getProcessedVideo()->getMimeType());
+        $video->setSize($subtitleIncrustatorToApi->getMediaPod()->getProcessedVideo()->getSize());
+        $video->setLength($mediaPod->getOriginalVideo()->getLength());
 
         $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING)],
-            'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING),
+            'statuses' => [$status],
+            'status' => $status,
+            'processedVideo' => $video,
         ]);
-
-        $this->protobufService->toSubtitleIncrustator($subtitleTransformerToApi);
     }
 }
