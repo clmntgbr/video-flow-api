@@ -4,7 +4,6 @@ namespace App\MessageHandler;
 
 use App\Entity\MediaPod;
 use App\Protobuf\MediaPodStatus;
-use App\Protobuf\SubtitleMergerToApi;
 use App\Protobuf\SubtitleTransformerToApi;
 use App\Repository\MediaPodRepository;
 use App\Service\ProtobufService;
