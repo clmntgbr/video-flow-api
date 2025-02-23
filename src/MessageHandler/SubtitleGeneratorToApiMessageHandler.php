@@ -6,6 +6,7 @@ use App\Entity\MediaPod;
 use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Repository\MediaPodRepository;
+use App\Service\MediaPodOrchestrator;
 use App\Service\ProtobufService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -17,15 +18,14 @@ final class SubtitleGeneratorToApiMessageHandler
     public function __construct(
         private LoggerInterface $logger,
         private MediaPodRepository $mediaPodRepository,
-        private MessageBusInterface $messageBus,
-        private ProtobufService $protobufService,
+        private MediaPodOrchestrator $mediaPodOrchestrator
     ) {
     }
 
     public function __invoke(SubtitleGeneratorToApi $subtitleGeneratorToApi): void
     {
         $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received SubtitleGeneratorToApi message with mediaPod uuid : %s', $subtitleGeneratorToApi->getMediaPod()->getUuid()));
+        $this->logger->info(sprintf('Received from SubtitleGenerator with mediaPod uuid : %s', $subtitleGeneratorToApi->getMediaPod()->getUuid()));
 
         $mediaPod = $this->mediaPodRepository->findOneBy([
             'uuid' => $subtitleGeneratorToApi->getMediaPod()->getUuid(),
@@ -50,12 +50,7 @@ final class SubtitleGeneratorToApiMessageHandler
         foreach ($subtitleGeneratorToApi->getMediaPod()->getOriginalVideo()->getSubtitles()->getIterator() as $iterator) {
             $mediaPod->getOriginalVideo()->addSubtitles($iterator);
         }
-
-        $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING)],
-            'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING),
-        ]);
-
-        $this->protobufService->toSubtitleMerger($subtitleGeneratorToApi);
+        
+        $this->mediaPodOrchestrator->dispatch($subtitleGeneratorToApi->getMediaPod(), $mediaPod, $status);
     }
 }

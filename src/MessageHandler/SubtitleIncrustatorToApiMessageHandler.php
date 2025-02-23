@@ -27,7 +27,7 @@ final class SubtitleIncrustatorToApiMessageHandler
     public function __invoke(SubtitleIncrustatorToApi $subtitleIncrustatorToApi): void
     {
         $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received SubtitleIncrustatorToApi message with mediaPod uuid : %s', $subtitleIncrustatorToApi->getMediaPod()->getUuid()));
+        $this->logger->info(sprintf('Received from SubtitleIncrustator with mediaPod uuid : %s', $subtitleIncrustatorToApi->getMediaPod()->getUuid()));
         
         $mediaPod = $this->mediaPodRepository->findOneBy([
             'uuid' => $subtitleIncrustatorToApi->getMediaPod()->getUuid(),

@@ -6,6 +6,7 @@ use App\Entity\MediaPod;
 use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SubtitleTransformerToApi;
 use App\Repository\MediaPodRepository;
+use App\Service\MediaPodOrchestrator;
 use App\Service\ProtobufService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -17,15 +18,14 @@ final class SubtitleTransformerToApiMessageHandler
     public function __construct(
         private LoggerInterface $logger,
         private MediaPodRepository $mediaPodRepository,
-        private MessageBusInterface $messageBus,
-        private ProtobufService $protobufService,
+        private MediaPodOrchestrator $mediaPodOrchestrator,
     ) {
     }
 
     public function __invoke(SubtitleTransformerToApi $subtitleTransformerToApi): void
     {
         $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received SubtitleTransformerToApi message with mediaPod uuid : %s', $subtitleTransformerToApi->getMediaPod()->getUuid()));
+        $this->logger->info(sprintf('Received from SubtitleTransformer with mediaPod uuid : %s', $subtitleTransformerToApi->getMediaPod()->getUuid()));
 
         $mediaPod = $this->mediaPodRepository->findOneBy([
             'uuid' => $subtitleTransformerToApi->getMediaPod()->getUuid(),
@@ -47,12 +47,6 @@ final class SubtitleTransformerToApiMessageHandler
         }
 
         $mediaPod->getOriginalVideo()->setAss($subtitleTransformerToApi->getMediaPod()->getOriginalVideo()->getAss());
-
-        $mediaPod = $this->mediaPodRepository->update($mediaPod, [
-            'statuses' => [$status, MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING)],
-            'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING),
-        ]);
-
-        $this->protobufService->toSubtitleIncrustator($subtitleTransformerToApi);
+        $this->mediaPodOrchestrator->dispatch($subtitleTransformerToApi->getMediaPod(), $mediaPod, $status);
     }
 }

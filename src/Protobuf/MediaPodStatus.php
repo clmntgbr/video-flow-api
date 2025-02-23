@@ -76,17 +76,17 @@ class MediaPodStatus
      */
     const SUBTITLE_INCRUSTATOR_ERROR = 15;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_FORMATTER_PENDING = 16;</code>
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_PENDING = 16;</code>
      */
-    const SUBTITLE_FORMATTER_PENDING = 16;
+    const VIDEO_FORMATTER_PENDING = 16;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_FORMATTER_COMPLETE = 17;</code>
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_COMPLETE = 17;</code>
      */
-    const SUBTITLE_FORMATTER_COMPLETE = 17;
+    const VIDEO_FORMATTER_COMPLETE = 17;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_FORMATTER_ERROR = 18;</code>
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_ERROR = 18;</code>
      */
-    const SUBTITLE_FORMATTER_ERROR = 18;
+    const VIDEO_FORMATTER_ERROR = 18;
     /**
      * Generated from protobuf enum <code>RESIZING = 19;</code>
      */
@@ -121,9 +121,9 @@ class MediaPodStatus
         self::SUBTITLE_INCRUSTATOR_PENDING => 'SUBTITLE_INCRUSTATOR_PENDING',
         self::SUBTITLE_INCRUSTATOR_COMPLETE => 'SUBTITLE_INCRUSTATOR_COMPLETE',
         self::SUBTITLE_INCRUSTATOR_ERROR => 'SUBTITLE_INCRUSTATOR_ERROR',
-        self::SUBTITLE_FORMATTER_PENDING => 'SUBTITLE_FORMATTER_PENDING',
-        self::SUBTITLE_FORMATTER_COMPLETE => 'SUBTITLE_FORMATTER_COMPLETE',
-        self::SUBTITLE_FORMATTER_ERROR => 'SUBTITLE_FORMATTER_ERROR',
+        self::VIDEO_FORMATTER_PENDING => 'VIDEO_FORMATTER_PENDING',
+        self::VIDEO_FORMATTER_COMPLETE => 'VIDEO_FORMATTER_COMPLETE',
+        self::VIDEO_FORMATTER_ERROR => 'VIDEO_FORMATTER_ERROR',
         self::RESIZING => 'RESIZING',
         self::RESIZED => 'RESIZED',
         self::READY_FOR_EXPORT => 'READY_FOR_EXPORT',

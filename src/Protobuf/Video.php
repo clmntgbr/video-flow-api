@@ -45,6 +45,10 @@ class Video extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string audios = 8;</code>
      */
     private $audios;
+    /**
+     * Generated from protobuf field <code>optional .App.Protobuf.Format format = 9;</code>
+     */
+    protected $format = null;
 
     /**
      * Constructor.
@@ -60,6 +64,7 @@ class Video extends \Google\Protobuf\Internal\Message
      *     @type string $ass
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $subtitles
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $audios
+     *     @type \App\Protobuf\Format $format
      * }
      */
     public function __construct($data = NULL) {
@@ -239,6 +244,38 @@ class Video extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->audios = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>optional .App.Protobuf.Format format = 9;</code>
+     * @return \App\Protobuf\Format|null
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    public function hasFormat()
+    {
+        return isset($this->format);
+    }
+
+    public function clearFormat()
+    {
+        unset($this->format);
+    }
+
+    /**
+     * Generated from protobuf field <code>optional .App.Protobuf.Format format = 9;</code>
+     * @param \App\Protobuf\Format $var
+     * @return $this
+     */
+    public function setFormat($var)
+    {
+        GPBUtil::checkMessage($var, \App\Protobuf\Format::class);
+        $this->format = $var;
 
         return $this;
     }

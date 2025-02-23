@@ -9,6 +9,7 @@ use App\Protobuf\ApiToSubtitleGenerator;
 use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToSubtitleMerger;
 use App\Protobuf\ApiToSubtitleTransformer;
+use App\Protobuf\ApiToVideoFormatter;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
 use App\Protobuf\Preset as ProtoPreset;
@@ -17,6 +18,7 @@ use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\SubtitleMergerToApi;
 use App\Protobuf\SubtitleTransformerToApi;
 use App\Protobuf\Video as ProtoVideo;
+use App\Protobuf\VideoFormatterToApi;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -62,46 +64,52 @@ class ProtobufService
         ]);
     }
 
-    public function toSubtitleGenerator(SoundExtractorToApi $soundExtractorToApi): void
+    public function toSubtitleGenerator(ProtoMediaPod $mediaPod): void
     {
-        $apiToSubtitleGenerator = new ApiToSubtitleGenerator();
-        $mediaPod = $soundExtractorToApi->getMediaPod();
-        $apiToSubtitleGenerator->setMediaPod($mediaPod);
+        $protobuf = new ApiToSubtitleGenerator();
+        $protobuf->setMediaPod($mediaPod);
 
-        $this->messageBus->dispatch($apiToSubtitleGenerator, [
+        $this->messageBus->dispatch($protobuf, [
             new AmqpStamp('api_to_subtitle_generator', 0, []),
         ]);
     }
 
-    public function toSubtitleMerger(SubtitleGeneratorToApi $subtitleGeneratorToApi): void
+    public function toSubtitleMerger(ProtoMediaPod $mediaPod): void
     {
-        $apiToSubtitleMerger = new ApiToSubtitleMerger();
-        $mediaPod = $subtitleGeneratorToApi->getMediaPod();
-        $apiToSubtitleMerger->setMediaPod($mediaPod);
+        $protobuf = new ApiToSubtitleMerger();
+        $protobuf->setMediaPod($mediaPod);
 
-        $this->messageBus->dispatch($apiToSubtitleMerger, [
+        $this->messageBus->dispatch($protobuf, [
             new AmqpStamp('api_to_subtitle_merger', 0, []),
         ]);
     }
 
-    public function toSubtitleIncrustator(SubtitleTransformerToApi $subtitleTransformerToApi): void
+    public function toSubtitleIncrustator(ProtoMediaPod $mediaPod): void
     {
-        $apiToSubtitleIncrustator = new ApiToSubtitleIncrustator();
-        $mediaPod = $subtitleTransformerToApi->getMediaPod();
-        $apiToSubtitleIncrustator->setMediaPod($mediaPod);
+        $protobuf = new ApiToSubtitleIncrustator();
+        $protobuf->setMediaPod($mediaPod);
 
-        $this->messageBus->dispatch($apiToSubtitleIncrustator, [
+        $this->messageBus->dispatch($protobuf, [
             new AmqpStamp('api_to_subtitle_incrustator', 0, []),
         ]);
     }
 
-    public function toSubtitleTransformer(SubtitleMergerToApi $subtitleMergerToApi): void
+    public function toVideoFormatter(ProtoMediaPod $mediaPod): void
     {
-        $apiToSubtitleTransformer = new ApiToSubtitleTransformer();
-        $mediaPod = $subtitleMergerToApi->getMediaPod();
-        $apiToSubtitleTransformer->setMediaPod($mediaPod);
+        $protobuf = new ApiToVideoFormatter();
+        $protobuf->setMediaPod($mediaPod);
 
-        $this->messageBus->dispatch($apiToSubtitleTransformer, [
+        $this->messageBus->dispatch($protobuf, [
+            new AmqpStamp('api_to_video_formatter', 0, []),
+        ]);
+    }
+
+    public function toSubtitleTransformer(ProtoMediaPod $mediaPod): void
+    {
+        $protobuf = new ApiToSubtitleTransformer();
+        $protobuf->setMediaPod($mediaPod);
+
+        $this->messageBus->dispatch($protobuf, [
             new AmqpStamp('api_to_subtitle_transformer', 0, []),
         ]);
     }
