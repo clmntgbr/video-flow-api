@@ -72,5 +72,16 @@ class MediaPodOrchestrator
 
             return;
         }
+
+        if ($status === MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_COMPLETE)) {
+            /** @var MediaPod $mediaPod */
+            $mediaPod = $this->mediaPodRepository->update($mediaPod, [
+                'statuses' => [MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING)],
+                'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING),
+            ]);
+            $this->protobufService->toSubtitleIncrustator($protoMediaPod);
+
+            return;
+        }
     }
 }

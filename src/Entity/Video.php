@@ -20,7 +20,7 @@ class Video
     use TimestampableEntity;
     use UuidTrait;
 
-    #[ORM\Column(type: Types::STRING)]
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['media-pods:get'])]
     private ?string $originalName = null;
 
