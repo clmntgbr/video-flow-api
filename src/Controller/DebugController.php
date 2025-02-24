@@ -37,7 +37,7 @@ class DebugController extends AbstractController
             '@id' => '/api/media_pods/35d74015-4b0e-46e9-a64c-044a75f27f15',
             '@type' => 'MediaPod',
             'videoName' => null,
-            'format' => 'ORIGINAL',
+            'format' => 'ZOOMED_916',
             'originalVideo' => [
                 '@id' => '/api/videos/7fb5d19e-002a-49d6-ba06-5f9f879137f7',
                 '@type' => 'Video',
