@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Post;
 use App\ApiResource\UploadVideoAction;
 use App\Entity\Traits\UuidTrait;
 use App\Protobuf\MediaPodStatus;
+use App\Protobuf\VideoFormatStyle;
 use App\Repository\MediaPodRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -61,6 +62,10 @@ class MediaPod
 
     #[ORM\Column(type: Types::STRING)]
     #[Groups(['media-pods:get'])]
+    private ?string $format = null;
+
+    #[ORM\Column(type: Types::STRING)]
+    #[Groups(['media-pods:get'])]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::JSON)]
@@ -69,6 +74,7 @@ class MediaPod
 
     public function __construct()
     {
+        $this->format = VideoFormatStyle::name(VideoFormatStyle::ORIGINAL);
         $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
     }
 
@@ -164,6 +170,18 @@ class MediaPod
     public function setProcessedVideo(?Video $processedVideo): static
     {
         $this->processedVideo = $processedVideo;
+
+        return $this;
+    }
+
+    public function getFormat(): ?string
+    {
+        return $this->format;
+    }
+
+    public function setFormat(string $format): static
+    {
+        $this->format = $format;
 
         return $this;
     }

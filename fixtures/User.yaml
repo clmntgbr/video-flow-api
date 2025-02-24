@@ -5,6 +5,7 @@ App\Entity\User:
     email: "clement@gmail.com"
     plain_password: "clement"
     roles: ["ROLE_ADMIN"]
+    uuid: da59434f-602f-4d39-879c-eb0950812737
 
   user_{2..10}:
     email: <email()>

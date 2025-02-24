@@ -59,6 +59,8 @@ class Video
     public function __construct()
     {
         $this->initializeUuid();
+        $this->audios = [];
+        $this->subtitles = [];
     }
 
     #[Groups(['media-pods:get'])]

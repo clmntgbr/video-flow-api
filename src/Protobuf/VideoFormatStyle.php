@@ -6,32 +6,22 @@
 namespace App\Protobuf;
 
 /**
- * Protobuf type <code>App.Protobuf.PresetSubtitleShadow</code>.
+ * Protobuf type <code>App.Protobuf.VideoFormatStyle</code>.
  */
-class PresetSubtitleShadow
+class VideoFormatStyle
 {
     /**
-     * Generated from protobuf enum <code>SHADOW_NONE = 0;</code>.
+     * Generated from protobuf enum <code>ORIGINAL = 0;</code>.
      */
-    public const SHADOW_NONE = 0;
+    public const ORIGINAL = 0;
     /**
-     * Generated from protobuf enum <code>SHADOW_SOFT = 1;</code>.
+     * Generated from protobuf enum <code>ZOOMED_916 = 1;</code>.
      */
-    public const SHADOW_SOFT = 1;
-    /**
-     * Generated from protobuf enum <code>SHADOW_MEDIUM = 2;</code>.
-     */
-    public const SHADOW_MEDIUM = 2;
-    /**
-     * Generated from protobuf enum <code>SHADOW_HARD = 4;</code>.
-     */
-    public const SHADOW_HARD = 4;
+    public const ZOOMED_916 = 1;
 
     private static $valueToName = [
-        self::SHADOW_NONE => 'SHADOW_NONE',
-        self::SHADOW_SOFT => 'SHADOW_SOFT',
-        self::SHADOW_MEDIUM => 'SHADOW_MEDIUM',
-        self::SHADOW_HARD => 'SHADOW_HARD',
+        self::ORIGINAL => 'ORIGINAL',
+        self::ZOOMED_916 => 'ZOOMED_916',
     ];
 
     public static function name($value)

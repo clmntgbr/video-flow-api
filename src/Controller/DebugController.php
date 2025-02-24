@@ -10,7 +10,6 @@ use App\Protobuf\ApiToVideoFormatter;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
 use App\Protobuf\Preset as ProtoPreset;
-use App\Protobuf\VideoFormatterToApi;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;
@@ -38,6 +37,7 @@ class DebugController extends AbstractController
             '@id' => '/api/media_pods/35d74015-4b0e-46e9-a64c-044a75f27f15',
             '@type' => 'MediaPod',
             'videoName' => null,
+            'format' => 'ORIGINAL',
             'originalVideo' => [
                 '@id' => '/api/videos/7fb5d19e-002a-49d6-ba06-5f9f879137f7',
                 '@type' => 'Video',
@@ -46,8 +46,8 @@ class DebugController extends AbstractController
                 'mimeType' => 'video/mp4',
                 'size' => 71541180,
                 'length' => '240',
-                "subtitle" => "136cc2c2a2923f41987c67ca9845f9ff.srt",
-                "ass" => "136cc2c2a2923f41987c67ca9845f9ff.ass",
+                'subtitle' => '136cc2c2a2923f41987c67ca9845f9ff.srt',
+                'ass' => '136cc2c2a2923f41987c67ca9845f9ff.ass',
                 'subtitles' => [
                     '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
                     '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
@@ -107,6 +107,7 @@ class DebugController extends AbstractController
     {
         $mediaPod = new MediaPod();
         $mediaPod->setUser($user);
+        $mediaPod->setFormat($mediaPodData['format']);
         $mediaPod->setUuid($mediaPodData['uuid']);
         $mediaPod->setVideoName($mediaPodData['videoName']);
         $mediaPod->setOriginalVideo($video);
@@ -134,7 +135,7 @@ class DebugController extends AbstractController
         $video->setAudios($mediaPodData['originalVideo']['audios']);
         $video->setCreatedAt(new \DateTime($mediaPodData['originalVideo']['createdAt']));
         $video->setUpdatedAt(new \DateTime($mediaPodData['originalVideo']['updatedAt']));
-        
+
         return $video;
     }
 
@@ -233,7 +234,7 @@ class DebugController extends AbstractController
     public function subtitleGeneratorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
     {
         $mediaPodData = $this->getMediaPodData();
-        
+
         $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
 
         if (!$mediaPod instanceof MediaPod) {
@@ -274,6 +275,7 @@ class DebugController extends AbstractController
         $protoMediaPod->setUuid($mediaPodData['uuid']);
         $protoMediaPod->setUserUuid($user->getUuid());
         $protoMediaPod->setOriginalVideo($protoVideo);
+        $protoMediaPod->setFormat($mediaPodData['format']);
         $protoMediaPod->setPreset($protoPreset);
         $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE));
 
@@ -291,7 +293,7 @@ class DebugController extends AbstractController
     public function subtitleIncrustatorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
     {
         $mediaPodData = $this->getMediaPodData();
-        
+
         $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
 
         if (!$mediaPod instanceof MediaPod) {
@@ -307,7 +309,7 @@ class DebugController extends AbstractController
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_FORMATTER_PENDING),
+                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
                 ],
             ]);
         }
@@ -351,10 +353,11 @@ class DebugController extends AbstractController
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPodData['uuid']);
         $protoMediaPod->setUserUuid($user->getUuid());
+        $protoMediaPod->setFormat($mediaPodData['format']);
         $protoMediaPod->setOriginalVideo($protoVideo);
         $protoMediaPod->setProcessedVideo($protoProcessedVideo);
         $protoMediaPod->setPreset($protoPreset);
-        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_FORMATTER_PENDING));
+        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING));
 
         $apiToVideoFormatter = new ApiToVideoFormatter();
         $apiToVideoFormatter->setMediaPod($protoMediaPod);
@@ -365,6 +368,4 @@ class DebugController extends AbstractController
 
         return new JsonResponse(data: [], status: Response::HTTP_CREATED);
     }
-
-
 }

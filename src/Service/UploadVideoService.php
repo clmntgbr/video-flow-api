@@ -86,6 +86,7 @@ class UploadVideoService
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             dd($e);
+
             return new JsonResponse([
                 'message' => 'An error occurred during the upload: '.$e->getMessage(),
             ], Response::HTTP_INTERNAL_SERVER_ERROR);

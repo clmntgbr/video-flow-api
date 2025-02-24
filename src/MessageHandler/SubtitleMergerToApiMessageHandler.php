@@ -2,51 +2,20 @@
 
 namespace App\MessageHandler;
 
-use App\Entity\MediaPod;
-use App\Protobuf\MediaPodStatus;
 use App\Protobuf\SubtitleMergerToApi;
-use App\Repository\MediaPodRepository;
-use App\Service\MediaPodOrchestrator;
-use App\Service\ProtobufService;
-use Psr\Log\LoggerInterface;
+use App\Service\MicroServicesHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 final class SubtitleMergerToApiMessageHandler
 {
     public function __construct(
-        private LoggerInterface $logger,
-        private MediaPodRepository $mediaPodRepository,
-        private MediaPodOrchestrator $mediaPodOrchestrator
+        private MicroServicesHandler $microServicesHandler,
     ) {
     }
 
     public function __invoke(SubtitleMergerToApi $subtitleMergerToApi): void
     {
-        $this->logger->info('############################################################################################################################################');
-        $this->logger->info(sprintf('Received from SubtitleMerger with mediaPod uuid : %s', $subtitleMergerToApi->getMediaPod()->getUuid()));
-
-        $mediaPod = $this->mediaPodRepository->findOneBy([
-            'uuid' => $subtitleMergerToApi->getMediaPod()->getUuid(),
-        ]);
-
-        if (!$mediaPod instanceof MediaPod) {
-            return;
-        }
-
-        $status = $subtitleMergerToApi->getMediaPod()->getStatus();
-
-        if (MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE) !== $status) {
-            $this->mediaPodRepository->update($mediaPod, [
-                'statuses' => [$status],
-                'status' => $status,
-            ]);
-
-            return;
-        }
-
-        $mediaPod->getOriginalVideo()->setSubtitle($subtitleMergerToApi->getMediaPod()->getOriginalVideo()->getSubtitle());
-        $this->mediaPodOrchestrator->dispatch($subtitleMergerToApi->getMediaPod(), $mediaPod, $status);
+        $this->microServicesHandler->handle($subtitleMergerToApi->getMediaPod());
     }
 }
