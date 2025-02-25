@@ -150,6 +150,13 @@ class MediaPod
         return $this;
     }
 
+    public function initStatuses(): static
+    {
+        $this->statuses = [];
+
+        return $this;
+    }
+
     public function getPreset(): ?Preset
     {
         return $this->preset;

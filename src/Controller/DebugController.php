@@ -113,6 +113,7 @@ class DebugController extends AbstractController
         $mediaPod->setOriginalVideo($video);
         $mediaPod->setPreset(new Preset());
         $mediaPod->setStatus($mediaPodData['status']);
+        $mediaPod->initStatuses();
         $mediaPod->setStatuses($mediaPodData['statuses']);
         $mediaPod->setCreatedAt(new \DateTime($mediaPodData['createdAt']));
         $mediaPod->setUpdatedAt(new \DateTime($mediaPodData['updatedAt']));
@@ -289,8 +290,8 @@ class DebugController extends AbstractController
         return new JsonResponse(data: [], status: Response::HTTP_CREATED);
     }
 
-    #[Route('/subtitle_incrustator_api', name: 'subtitle_incrustator_api', methods: ['GET'])]
-    public function subtitleIncrustatorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
+    #[Route('/video_formatter_api', name: 'video_formatter_api', methods: ['GET'])]
+    public function videoFormatterApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
     {
         $mediaPodData = $this->getMediaPodData();
 
@@ -300,15 +301,13 @@ class DebugController extends AbstractController
             $video = $this->createVideoEntity($mediaPodData);
             $mediaPod = $this->createMediaPodEntity($user, $mediaPodData, $video);
             $mediaPodRepository->update($mediaPod, [
-                'status' => MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE),
+                'status' => MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
                 'statuses' => [
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING),
                     MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE),
                     MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
                 ],
             ]);
