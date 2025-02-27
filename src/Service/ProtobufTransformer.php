@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
+use App\Entity\Configuration;
 use App\Entity\MediaPod;
-use App\Entity\Preset;
 use App\Entity\Video;
+use App\Protobuf\Configuration as ProtoConfiguration;
 use App\Protobuf\MediaPod as ProtoMediaPod;
-use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\Video as ProtoVideo;
 
 class ProtobufTransformer
@@ -21,10 +21,6 @@ class ProtobufTransformer
             $mediaPod->setUuid($protobuf->getUuid());
         }
 
-        if ($protobuf->getFormat()) {
-            $mediaPod->setFormat($protobuf->getFormat());
-        }
-
         if ($protobuf->getOriginalVideo()) {
             $mediaPod->setOriginalVideo(self::transformVideo($protobuf->getOriginalVideo(), $mediaPod->getOriginalVideo() ?? new Video()));
         }
@@ -33,8 +29,8 @@ class ProtobufTransformer
             $mediaPod->setProcessedVideo(self::transformVideo($protobuf->getProcessedVideo(), $mediaPod->getProcessedVideo() ?? new Video()));
         }
 
-        if ($protobuf->getPreset()) {
-            $mediaPod->setPreset(self::transformPreset($protobuf->getPreset(), $mediaPod->getPreset()));
+        if ($protobuf->getConfiguration()) {
+            $mediaPod->setConfiguration(self::transformConfiguration($protobuf->getConfiguration(), $mediaPod->getConfiguration()));
         }
 
         return $mediaPod;
@@ -54,10 +50,6 @@ class ProtobufTransformer
             $protobuf->setStatus($entity->getStatus());
         }
 
-        if ($entity->getFormat()) {
-            $protobuf->setFormat($entity->getFormat());
-        }
-
         if ($entity->getOriginalVideo()) {
             $protobuf->setOriginalVideo(self::transformEntityToProtobufVideo($entity->getOriginalVideo()));
         }
@@ -70,8 +62,8 @@ class ProtobufTransformer
             $protobuf->setProcessedVideo(self::transformEntityToProtobufVideo($entity->getProcessedVideo()));
         }
 
-        if ($entity->getPreset()) {
-            $protobuf->setPreset(self::transformEntityToProtobufPreset($entity->getPreset()));
+        if ($entity->getConfiguration()) {
+            $protobuf->setConfiguration(self::transformEntityToProtobufConfiguration($entity->getConfiguration()));
         }
 
         return $protobuf;
@@ -120,49 +112,53 @@ class ProtobufTransformer
         return $video;
     }
 
-    private function transformPreset(ProtoPreset $protobuf, Preset $preset): Preset
+    private function transformConfiguration(ProtoConfiguration $protobuf, Configuration $configuration): Configuration
     {
+        if ($protobuf->getFormat()) {
+            $configuration->setFormat($protobuf->getFormat());
+        }
+
         if ($protobuf->getSubtitleFont()) {
-            $preset->setSubtitleFont($protobuf->getSubtitleFont());
+            $configuration->setSubtitleFont($protobuf->getSubtitleFont());
         }
 
         if ($protobuf->getSubtitleSize()) {
-            $preset->setSubtitleSize($protobuf->getSubtitleSize());
+            $configuration->setSubtitleSize($protobuf->getSubtitleSize());
         }
 
         if ($protobuf->getSubtitleColor()) {
-            $preset->setSubtitleColor($protobuf->getSubtitleColor());
+            $configuration->setSubtitleColor($protobuf->getSubtitleColor());
         }
 
         if ($protobuf->getSubtitleBold()) {
-            $preset->setSubtitleBold($protobuf->getSubtitleBold());
+            $configuration->setSubtitleBold($protobuf->getSubtitleBold());
         }
 
         if ($protobuf->getSubtitleItalic()) {
-            $preset->setSubtitleItalic($protobuf->getSubtitleItalic());
+            $configuration->setSubtitleItalic($protobuf->getSubtitleItalic());
         }
 
         if ($protobuf->getSubtitleUnderline()) {
-            $preset->setSubtitleUnderline($protobuf->getSubtitleUnderline());
+            $configuration->setSubtitleUnderline($protobuf->getSubtitleUnderline());
         }
 
         if ($protobuf->getSubtitleOutlineColor()) {
-            $preset->setSubtitleOutlineColor($protobuf->getSubtitleOutlineColor());
+            $configuration->setSubtitleOutlineColor($protobuf->getSubtitleOutlineColor());
         }
 
         if ($protobuf->getSubtitleOutlineThickness()) {
-            $preset->setSubtitleOutlineThickness($protobuf->getSubtitleOutlineThickness());
+            $configuration->setSubtitleOutlineThickness($protobuf->getSubtitleOutlineThickness());
         }
 
         if ($protobuf->getSubtitleShadow()) {
-            $preset->setSubtitleShadow($protobuf->getSubtitleShadow());
+            $configuration->setSubtitleShadow($protobuf->getSubtitleShadow());
         }
 
         if ($protobuf->getSubtitleShadowColor()) {
-            $preset->setSubtitleShadowColor($protobuf->getSubtitleShadowColor());
+            $configuration->setSubtitleShadowColor($protobuf->getSubtitleShadowColor());
         }
 
-        return $preset;
+        return $configuration;
     }
 
     private function transformEntityToProtobufVideo(Video $entity): ProtoVideo
@@ -204,12 +200,16 @@ class ProtobufTransformer
         return $protobuf;
     }
 
-    private function transformEntityToProtobufPreset(Preset $entity): ProtoPreset
+    private function transformEntityToProtobufConfiguration(Configuration $entity): ProtoConfiguration
     {
-        $protobuf = new ProtoPreset();
+        $protobuf = new ProtoConfiguration();
 
         if ($entity->getSubtitleFont()) {
             $protobuf->setSubtitleFont($entity->getSubtitleFont());
+        }
+
+        if ($entity->getFormat()) {
+            $protobuf->setFormat($entity->getFormat());
         }
 
         if ($entity->getSubtitleSize()) {

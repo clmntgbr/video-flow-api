@@ -10,9 +10,9 @@ use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToSubtitleMerger;
 use App\Protobuf\ApiToSubtitleTransformer;
 use App\Protobuf\ApiToVideoFormatter;
+use App\Protobuf\Configuration as ProtoConfiguration;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
-use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
@@ -32,24 +32,24 @@ class ProtobufService
         $protoVideo->setMimeType($uploadedFile->getMimeType());
         $protoVideo->setSize($uploadedFile->getSize());
 
-        $protoPreset = new ProtoPreset();
-        $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
-        $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
-        $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
-        $protoPreset->setSubtitleBold($mediaPod->getPreset()->getSubtitleBold());
-        $protoPreset->setSubtitleItalic($mediaPod->getPreset()->getSubtitleItalic());
-        $protoPreset->setSubtitleUnderline($mediaPod->getPreset()->getSubtitleUnderline());
-        $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
-        $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
-        $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
-        $protoPreset->setSubtitleShadow($mediaPod->getPreset()->getSubtitleShadow());
+        $protoConfiguration = new ProtoConfiguration();
+        $protoConfiguration->setSubtitleFont($mediaPod->getConfiguration()->getSubtitleFont());
+        $protoConfiguration->setSubtitleSize($mediaPod->getConfiguration()->getSubtitleSize());
+        $protoConfiguration->setSubtitleColor($mediaPod->getConfiguration()->getSubtitleColor());
+        $protoConfiguration->setSubtitleBold($mediaPod->getConfiguration()->getSubtitleBold());
+        $protoConfiguration->setSubtitleItalic($mediaPod->getConfiguration()->getSubtitleItalic());
+        $protoConfiguration->setSubtitleUnderline($mediaPod->getConfiguration()->getSubtitleUnderline());
+        $protoConfiguration->setSubtitleOutlineColor($mediaPod->getConfiguration()->getSubtitleOutlineColor());
+        $protoConfiguration->setSubtitleOutlineThickness($mediaPod->getConfiguration()->getSubtitleOutlineThickness());
+        $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
+        $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
+        $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
 
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPod->getUuid());
         $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setFormat($mediaPod->getFormat());
         $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setPreset($protoPreset);
+        $protoMediaPod->setConfiguration($protoConfiguration);
         $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING));
 
         $apiToSoundExtractor = new ApiToSoundExtractor();

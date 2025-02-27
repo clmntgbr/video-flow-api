@@ -5,7 +5,6 @@
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
-/public/debug/136cc2c2a2923f41987c67ca9845f9ff_processed.mp4
 /var/
 /vendor/
 ###< symfony/framework-bundle ###

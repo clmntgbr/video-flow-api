@@ -9,7 +9,6 @@ use ApiPlatform\Metadata\Post;
 use App\ApiResource\UploadVideoAction;
 use App\Entity\Traits\UuidTrait;
 use App\Protobuf\MediaPodStatus;
-use App\Protobuf\VideoFormatStyle;
 use App\Repository\MediaPodRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -55,14 +54,10 @@ class MediaPod
     #[Groups(['media-pods:get'])]
     private ?Video $processedVideo = null;
 
-    #[ORM\OneToOne(targetEntity: Preset::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'preset_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\OneToOne(targetEntity: Configuration::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'configuration_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['media-pods:get'])]
-    private ?Preset $preset = null;
-
-    #[ORM\Column(type: Types::STRING)]
-    #[Groups(['media-pods:get'])]
-    private ?string $format = null;
+    private ?Configuration $configuration = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Groups(['media-pods:get'])]
@@ -74,7 +69,6 @@ class MediaPod
 
     public function __construct()
     {
-        $this->format = VideoFormatStyle::name(VideoFormatStyle::ORIGINAL);
         $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
     }
 
@@ -157,14 +151,14 @@ class MediaPod
         return $this;
     }
 
-    public function getPreset(): ?Preset
+    public function getConfiguration(): ?Configuration
     {
-        return $this->preset;
+        return $this->configuration;
     }
 
-    public function setPreset(?Preset $preset): static
+    public function setConfiguration(?Configuration $configuration): static
     {
-        $this->preset = $preset;
+        $this->configuration = $configuration;
 
         return $this;
     }
@@ -177,18 +171,6 @@ class MediaPod
     public function setProcessedVideo(?Video $processedVideo): static
     {
         $this->processedVideo = $processedVideo;
-
-        return $this;
-    }
-
-    public function getFormat(): ?string
-    {
-        return $this->format;
-    }
-
-    public function setFormat(string $format): static
-    {
-        $this->format = $format;
 
         return $this;
     }

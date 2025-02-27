@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\MediaPod;
 use App\Protobuf\MediaPod as ProtoMediaPod;
-use App\Protobuf\MediaPodStatus;
 use App\Repository\MediaPodRepository;
 use Psr\Log\LoggerInterface;
 

@@ -2,7 +2,6 @@
 
 namespace App\MessageHandler;
 
-use App\Protobuf\SubtitleIncrustatorToApi;
 use App\Protobuf\VideoFormatterToApi;
 use App\Service\MicroServicesHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

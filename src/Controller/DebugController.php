@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Configuration;
 use App\Entity\MediaPod;
-use App\Entity\Preset;
 use App\Entity\User;
 use App\Entity\Video;
+use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToVideoFormatter;
+use App\Protobuf\Configuration as ProtoConfiguration;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
-use App\Protobuf\Preset as ProtoPreset;
 use App\Protobuf\SubtitleGeneratorToApi;
 use App\Protobuf\Video as ProtoVideo;
 use App\Repository\MediaPodRepository;
@@ -78,17 +79,17 @@ class DebugController extends AbstractController
                 'updatedAt' => '2025-02-08T21:08:54+00:00',
                 'uuid' => '7fb5d19e-002a-49d6-ba06-5f9f879137f7',
             ],
-            'preset' => [
+            'configuration' => [
                 'subtitleFont' => 'ARIAL',
                 'subtitleSize' => '20',
                 'subtitleColor' => '#FFFFFF',
                 'subtitleBold' => '0',
                 'subtitleItalic' => '0',
                 'subtitleUnderline' => '0',
-                'subtitleOutlineColor' => '#000000',
-                'subtitleOutlineThickness' => '2',
-                'subtitleShadow' => '2',
-                'subtitleShadowColor' => '#000000',
+                'subtitleOutlineColor' => '#FFFFFF',
+                'subtitleOutlineThickness' => '1',
+                'subtitleShadow' => '1',
+                'subtitleShadowColor' => '#FFFFFF',
             ],
             'status' => 'subtitle_generator_pending',
             'statuses' => [
@@ -107,11 +108,10 @@ class DebugController extends AbstractController
     {
         $mediaPod = new MediaPod();
         $mediaPod->setUser($user);
-        $mediaPod->setFormat($mediaPodData['format']);
         $mediaPod->setUuid($mediaPodData['uuid']);
         $mediaPod->setVideoName($mediaPodData['videoName']);
         $mediaPod->setOriginalVideo($video);
-        $mediaPod->setPreset(new Preset());
+        $mediaPod->setConfiguration(new Configuration());
         $mediaPod->setStatus($mediaPodData['status']);
         $mediaPod->initStatuses();
         $mediaPod->setStatuses($mediaPodData['statuses']);
@@ -260,24 +260,24 @@ class DebugController extends AbstractController
             '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
         ]);
 
-        $protoPreset = new ProtoPreset();
-        $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
-        $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
-        $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
-        $protoPreset->setSubtitleBold($mediaPod->getPreset()->getSubtitleBold());
-        $protoPreset->setSubtitleItalic($mediaPod->getPreset()->getSubtitleItalic());
-        $protoPreset->setSubtitleUnderline($mediaPod->getPreset()->getSubtitleUnderline());
-        $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
-        $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
-        $protoPreset->setSubtitleShadow($mediaPod->getPreset()->getSubtitleShadow());
-        $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
+        $protoConfiguration = new ProtoConfiguration();
+        $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
+        $protoConfiguration->setSubtitleFont($mediaPod->getConfiguration()->getSubtitleFont());
+        $protoConfiguration->setSubtitleSize($mediaPod->getConfiguration()->getSubtitleSize());
+        $protoConfiguration->setSubtitleColor($mediaPod->getConfiguration()->getSubtitleColor());
+        $protoConfiguration->setSubtitleBold($mediaPod->getConfiguration()->getSubtitleBold());
+        $protoConfiguration->setSubtitleItalic($mediaPod->getConfiguration()->getSubtitleItalic());
+        $protoConfiguration->setSubtitleUnderline($mediaPod->getConfiguration()->getSubtitleUnderline());
+        $protoConfiguration->setSubtitleOutlineColor($mediaPod->getConfiguration()->getSubtitleOutlineColor());
+        $protoConfiguration->setSubtitleOutlineThickness($mediaPod->getConfiguration()->getSubtitleOutlineThickness());
+        $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
+        $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
 
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPodData['uuid']);
         $protoMediaPod->setUserUuid($user->getUuid());
         $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setFormat($mediaPodData['format']);
-        $protoMediaPod->setPreset($protoPreset);
+        $protoMediaPod->setConfiguration($protoConfiguration);
         $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE));
 
         $subtitleGeneratorApi = new SubtitleGeneratorToApi();
@@ -337,25 +337,25 @@ class DebugController extends AbstractController
         $protoProcessedVideo->setSize($mediaPodData['processedVideo']['size']);
         $protoProcessedVideo->setLength($mediaPodData['processedVideo']['length']);
 
-        $protoPreset = new ProtoPreset();
-        $protoPreset->setSubtitleFont($mediaPod->getPreset()->getSubtitleFont());
-        $protoPreset->setSubtitleSize($mediaPod->getPreset()->getSubtitleSize());
-        $protoPreset->setSubtitleColor($mediaPod->getPreset()->getSubtitleColor());
-        $protoPreset->setSubtitleBold($mediaPod->getPreset()->getSubtitleBold());
-        $protoPreset->setSubtitleItalic($mediaPod->getPreset()->getSubtitleItalic());
-        $protoPreset->setSubtitleUnderline($mediaPod->getPreset()->getSubtitleUnderline());
-        $protoPreset->setSubtitleOutlineColor($mediaPod->getPreset()->getSubtitleOutlineColor());
-        $protoPreset->setSubtitleOutlineThickness($mediaPod->getPreset()->getSubtitleOutlineThickness());
-        $protoPreset->setSubtitleShadow($mediaPod->getPreset()->getSubtitleShadow());
-        $protoPreset->setSubtitleShadowColor($mediaPod->getPreset()->getSubtitleShadowColor());
+        $protoConfiguration = new ProtoConfiguration();
+        $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
+        $protoConfiguration->setSubtitleFont($mediaPod->getConfiguration()->getSubtitleFont());
+        $protoConfiguration->setSubtitleSize($mediaPod->getConfiguration()->getSubtitleSize());
+        $protoConfiguration->setSubtitleColor($mediaPod->getConfiguration()->getSubtitleColor());
+        $protoConfiguration->setSubtitleBold($mediaPod->getConfiguration()->getSubtitleBold());
+        $protoConfiguration->setSubtitleItalic($mediaPod->getConfiguration()->getSubtitleItalic());
+        $protoConfiguration->setSubtitleUnderline($mediaPod->getConfiguration()->getSubtitleUnderline());
+        $protoConfiguration->setSubtitleOutlineColor($mediaPod->getConfiguration()->getSubtitleOutlineColor());
+        $protoConfiguration->setSubtitleOutlineThickness($mediaPod->getConfiguration()->getSubtitleOutlineThickness());
+        $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
+        $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
 
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPodData['uuid']);
         $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setFormat($mediaPodData['format']);
         $protoMediaPod->setOriginalVideo($protoVideo);
         $protoMediaPod->setProcessedVideo($protoProcessedVideo);
-        $protoMediaPod->setPreset($protoPreset);
+        $protoMediaPod->setConfiguration($protoConfiguration);
         $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING));
 
         $apiToVideoFormatter = new ApiToVideoFormatter();
@@ -363,6 +363,86 @@ class DebugController extends AbstractController
 
         $messageBus->dispatch($apiToVideoFormatter, [
             new AmqpStamp('api_to_video_formatter', 0, []),
+        ]);
+
+        return new JsonResponse(data: [], status: Response::HTTP_CREATED);
+    }
+
+    #[Route('/subtitle_incrustator_api', name: 'subtitle_incrustator_api', methods: ['GET'])]
+    public function subtitleIncrustatorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
+    {
+        $mediaPodData = $this->getMediaPodData();
+
+        $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
+
+        if (!$mediaPod instanceof MediaPod) {
+            $video = $this->createVideoEntity($mediaPodData);
+            $mediaPod = $this->createMediaPodEntity($user, $mediaPodData, $video);
+            $mediaPodRepository->update($mediaPod, [
+                'status' => MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
+                'statuses' => [
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE),
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING),
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE),
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING),
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE),
+                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
+                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_COMPLETE),
+                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING),
+                ],
+            ]);
+        }
+
+        $this->sendToS3($user, $mediaPod, $awsStorage);
+
+        $protoVideo = new ProtoVideo();
+        $protoVideo->setName($mediaPodData['originalVideo']['name']);
+        $protoVideo->setMimeType($mediaPodData['originalVideo']['mimeType']);
+        $protoVideo->setSize($mediaPodData['originalVideo']['size']);
+        $protoVideo->setLength($mediaPodData['originalVideo']['length']);
+        $protoVideo->setSubtitle($mediaPodData['originalVideo']['subtitle']);
+        $protoVideo->setAss($mediaPodData['originalVideo']['ass']);
+        $protoVideo->setAudios($mediaPodData['originalVideo']['audios']);
+        $protoVideo->setSubtitles([
+            '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
+            '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
+            '136cc2c2a2923f41987c67ca9845f9ff_3.srt',
+            '136cc2c2a2923f41987c67ca9845f9ff_4.srt',
+            '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
+        ]);
+
+        $protoProcessedVideo = new ProtoVideo();
+        $protoProcessedVideo->setName($mediaPodData['processedVideo']['name']);
+        $protoProcessedVideo->setMimeType($mediaPodData['processedVideo']['mimeType']);
+        $protoProcessedVideo->setSize($mediaPodData['processedVideo']['size']);
+        $protoProcessedVideo->setLength($mediaPodData['processedVideo']['length']);
+
+        $protoConfiguration = new ProtoConfiguration();
+        $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
+        $protoConfiguration->setSubtitleFont($mediaPod->getConfiguration()->getSubtitleFont());
+        $protoConfiguration->setSubtitleSize($mediaPod->getConfiguration()->getSubtitleSize());
+        $protoConfiguration->setSubtitleColor($mediaPod->getConfiguration()->getSubtitleColor());
+        $protoConfiguration->setSubtitleBold($mediaPod->getConfiguration()->getSubtitleBold());
+        $protoConfiguration->setSubtitleItalic($mediaPod->getConfiguration()->getSubtitleItalic());
+        $protoConfiguration->setSubtitleUnderline($mediaPod->getConfiguration()->getSubtitleUnderline());
+        $protoConfiguration->setSubtitleOutlineColor($mediaPod->getConfiguration()->getSubtitleOutlineColor());
+        $protoConfiguration->setSubtitleOutlineThickness($mediaPod->getConfiguration()->getSubtitleOutlineThickness());
+        $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
+        $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
+
+        $protoMediaPod = new ProtoMediaPod();
+        $protoMediaPod->setUuid($mediaPodData['uuid']);
+        $protoMediaPod->setUserUuid($user->getUuid());
+        $protoMediaPod->setOriginalVideo($protoVideo);
+        $protoMediaPod->setProcessedVideo($protoProcessedVideo);
+        $protoMediaPod->setConfiguration($protoConfiguration);
+        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING));
+
+        $apiToSubtitleIncrustator = new ApiToSubtitleIncrustator();
+        $apiToSubtitleIncrustator->setMediaPod($protoMediaPod);
+
+        $messageBus->dispatch($apiToSubtitleIncrustator, [
+            new AmqpStamp('api_to_subtitle_incrustator', 0, []),
         ]);
 
         return new JsonResponse(data: [], status: Response::HTTP_CREATED);

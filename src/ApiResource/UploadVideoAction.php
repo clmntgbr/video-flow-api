@@ -2,7 +2,7 @@
 
 namespace App\ApiResource;
 
-use App\Dto\UploadVideoPreset;
+use App\Dto\UploadVideoConfiguration;
 use App\Service\UploadVideoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,8 +20,10 @@ class UploadVideoAction extends AbstractController
     ) {
     }
 
-    public function __invoke(#[MapRequestPayload()] UploadVideoPreset $uploadVideoPreset, Request $request): JsonResponse
-    {
+    public function __invoke(
+        #[MapRequestPayload()] UploadVideoConfiguration $uploadVideoConfiguration,
+        Request $request,
+    ): JsonResponse {
         $video = $request->files->get('video');
 
         if (!$video instanceof UploadedFile) {
@@ -30,6 +32,6 @@ class UploadVideoAction extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->uploadVideoService->upload($video, $uploadVideoPreset);
+        return $this->uploadVideoService->upload($video, $uploadVideoConfiguration);
     }
 }
