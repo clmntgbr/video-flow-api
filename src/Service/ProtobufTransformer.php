@@ -117,6 +117,9 @@ class ProtobufTransformer
         if ($protobuf->getFormat()) {
             $configuration->setFormat($protobuf->getFormat());
         }
+        if ($protobuf->getSplit()) {
+            $configuration->setSplit($protobuf->getSplit());
+        }
 
         if ($protobuf->getSubtitleFont()) {
             $configuration->setSubtitleFont($protobuf->getSubtitleFont());
@@ -210,6 +213,10 @@ class ProtobufTransformer
 
         if ($entity->getFormat()) {
             $protobuf->setFormat($entity->getFormat());
+        }
+
+        if ($entity->getSplit()) {
+            $protobuf->setSplit($entity->getSplit());
         }
 
         if ($entity->getSubtitleSize()) {

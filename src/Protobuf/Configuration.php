@@ -56,6 +56,10 @@ class Configuration extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string format = 11;</code>.
      */
     protected $format = '';
+    /**
+     * Generated from protobuf field <code>string split = 12;</code>.
+     */
+    protected $split = '';
 
     /**
      * Constructor.
@@ -74,6 +78,7 @@ class Configuration extends \Google\Protobuf\Internal\Message
      * @var string $subtitleShadow
      * @var string $subtitleShadowColor
      * @var string $format
+     * @var string $split
      *             }
      */
     public function __construct($data = null)
@@ -353,6 +358,31 @@ class Configuration extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, true);
         $this->format = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string split = 12;</code>.
+     *
+     * @return string
+     */
+    public function getSplit()
+    {
+        return $this->split;
+    }
+
+    /**
+     * Generated from protobuf field <code>string split = 12;</code>.
+     *
+     * @param string $var
+     *
+     * @return $this
+     */
+    public function setSplit($var)
+    {
+        GPBUtil::checkString($var, true);
+        $this->split = $var;
 
         return $this;
     }

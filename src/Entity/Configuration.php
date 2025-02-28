@@ -65,6 +65,10 @@ class Configuration
     #[Groups(['media-pods:get'])]
     private ?string $format = null;
 
+    #[ORM\Column(type: Types::STRING)]
+    #[Groups(['media-pods:get'])]
+    private ?string $split = null;
+
     public function __construct()
     {
         $this->format = VideoFormatStyle::name(VideoFormatStyle::ORIGINAL);
@@ -78,6 +82,7 @@ class Configuration
         $this->subtitleUnderline = '0';
         $this->subtitleColor = '#FFFFFF';
         $this->subtitleSize = '16';
+        $this->split = '1';
         $this->initializeUuid();
     }
 
@@ -209,6 +214,18 @@ class Configuration
     public function setFormat(string $format): static
     {
         $this->format = $format;
+
+        return $this;
+    }
+
+    public function getSplit(): ?string
+    {
+        return $this->split;
+    }
+
+    public function setSplit(string $split): static
+    {
+        $this->split = $split;
 
         return $this;
     }

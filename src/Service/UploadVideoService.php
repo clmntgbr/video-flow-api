@@ -112,6 +112,7 @@ class UploadVideoService
             'subtitleShadow' => $uploadVideoConfiguration->subtitleShadow,
             'subtitleShadowColor' => $uploadVideoConfiguration->subtitleShadowColor,
             'format' => $uploadVideoConfiguration->format,
+            'split' => $uploadVideoConfiguration->split,
         ]);
 
         $mediaPod = $this->mediaPodRepository->create([

@@ -11,99 +11,115 @@ namespace App\Protobuf;
 class MediaPodStatus
 {
     /**
-     * Generated from protobuf enum <code>UPLOAD_COMPLETE = 0;</code>.
+     * Generated from protobuf enum <code>RESIZING = 0;</code>.
      */
-    public const UPLOAD_COMPLETE = 0;
+    public const RESIZING = 0;
     /**
-     * Generated from protobuf enum <code>SOUND_EXTRACTOR_PENDING = 1;</code>.
+     * Generated from protobuf enum <code>RESIZED = 1;</code>.
      */
-    public const SOUND_EXTRACTOR_PENDING = 1;
+    public const RESIZED = 1;
     /**
-     * Generated from protobuf enum <code>SOUND_EXTRACTOR_COMPLETE = 2;</code>.
+     * Generated from protobuf enum <code>READY_FOR_EXPORT = 2;</code>.
      */
-    public const SOUND_EXTRACTOR_COMPLETE = 2;
+    public const READY_FOR_EXPORT = 2;
     /**
-     * Generated from protobuf enum <code>SOUND_EXTRACTOR_ERROR = 3;</code>.
+     * Generated from protobuf enum <code>ERROR = 3;</code>.
      */
-    public const SOUND_EXTRACTOR_ERROR = 3;
+    public const ERROR = 3;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_PENDING = 4;</code>.
+     * Generated from protobuf enum <code>UPLOAD_COMPLETE = 4;</code>.
      */
-    public const SUBTITLE_GENERATOR_PENDING = 4;
+    public const UPLOAD_COMPLETE = 4;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_COMPLETE = 5;</code>.
+     * Generated from protobuf enum <code>SOUND_EXTRACTOR_PENDING = 5;</code>.
      */
-    public const SUBTITLE_GENERATOR_COMPLETE = 5;
+    public const SOUND_EXTRACTOR_PENDING = 5;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_ERROR = 6;</code>.
+     * Generated from protobuf enum <code>SOUND_EXTRACTOR_COMPLETE = 6;</code>.
      */
-    public const SUBTITLE_GENERATOR_ERROR = 6;
+    public const SOUND_EXTRACTOR_COMPLETE = 6;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_MERGER_PENDING = 7;</code>.
+     * Generated from protobuf enum <code>SOUND_EXTRACTOR_ERROR = 7;</code>.
      */
-    public const SUBTITLE_MERGER_PENDING = 7;
+    public const SOUND_EXTRACTOR_ERROR = 7;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_MERGER_COMPLETE = 8;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_PENDING = 8;</code>.
      */
-    public const SUBTITLE_MERGER_COMPLETE = 8;
+    public const SUBTITLE_GENERATOR_PENDING = 8;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_MERGER_ERROR = 9;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_COMPLETE = 9;</code>.
      */
-    public const SUBTITLE_MERGER_ERROR = 9;
+    public const SUBTITLE_GENERATOR_COMPLETE = 9;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_PENDING = 10;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_GENERATOR_ERROR = 10;</code>.
      */
-    public const SUBTITLE_TRANSFORMER_PENDING = 10;
+    public const SUBTITLE_GENERATOR_ERROR = 10;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_COMPLETE = 11;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_MERGER_PENDING = 11;</code>.
      */
-    public const SUBTITLE_TRANSFORMER_COMPLETE = 11;
+    public const SUBTITLE_MERGER_PENDING = 11;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_ERROR = 12;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_MERGER_COMPLETE = 12;</code>.
      */
-    public const SUBTITLE_TRANSFORMER_ERROR = 12;
+    public const SUBTITLE_MERGER_COMPLETE = 12;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_PENDING = 13;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_MERGER_ERROR = 13;</code>.
      */
-    public const SUBTITLE_INCRUSTATOR_PENDING = 13;
+    public const SUBTITLE_MERGER_ERROR = 13;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_COMPLETE = 14;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_PENDING = 14;</code>.
      */
-    public const SUBTITLE_INCRUSTATOR_COMPLETE = 14;
+    public const SUBTITLE_TRANSFORMER_PENDING = 14;
     /**
-     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_ERROR = 15;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_COMPLETE = 15;</code>.
      */
-    public const SUBTITLE_INCRUSTATOR_ERROR = 15;
+    public const SUBTITLE_TRANSFORMER_COMPLETE = 15;
     /**
-     * Generated from protobuf enum <code>VIDEO_FORMATTER_PENDING = 16;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_TRANSFORMER_ERROR = 16;</code>.
      */
-    public const VIDEO_FORMATTER_PENDING = 16;
+    public const SUBTITLE_TRANSFORMER_ERROR = 16;
     /**
-     * Generated from protobuf enum <code>VIDEO_FORMATTER_COMPLETE = 17;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_PENDING = 17;</code>.
      */
-    public const VIDEO_FORMATTER_COMPLETE = 17;
+    public const SUBTITLE_INCRUSTATOR_PENDING = 17;
     /**
-     * Generated from protobuf enum <code>VIDEO_FORMATTER_ERROR = 18;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_COMPLETE = 18;</code>.
      */
-    public const VIDEO_FORMATTER_ERROR = 18;
+    public const SUBTITLE_INCRUSTATOR_COMPLETE = 18;
     /**
-     * Generated from protobuf enum <code>RESIZING = 19;</code>.
+     * Generated from protobuf enum <code>SUBTITLE_INCRUSTATOR_ERROR = 19;</code>.
      */
-    public const RESIZING = 19;
+    public const SUBTITLE_INCRUSTATOR_ERROR = 19;
     /**
-     * Generated from protobuf enum <code>RESIZED = 20;</code>.
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_PENDING = 20;</code>.
      */
-    public const RESIZED = 20;
+    public const VIDEO_FORMATTER_PENDING = 20;
     /**
-     * Generated from protobuf enum <code>READY_FOR_EXPORT = 21;</code>.
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_COMPLETE = 21;</code>.
      */
-    public const READY_FOR_EXPORT = 21;
+    public const VIDEO_FORMATTER_COMPLETE = 21;
     /**
-     * Generated from protobuf enum <code>ERROR = 22;</code>.
+     * Generated from protobuf enum <code>VIDEO_FORMATTER_ERROR = 22;</code>.
      */
-    public const ERROR = 22;
+    public const VIDEO_FORMATTER_ERROR = 22;
+    /**
+     * Generated from protobuf enum <code>VIDEO_SPLITTER_PENDING = 23;</code>.
+     */
+    public const VIDEO_SPLITTER_PENDING = 23;
+    /**
+     * Generated from protobuf enum <code>VIDEO_SPLITTER_COMPLETE = 24;</code>.
+     */
+    public const VIDEO_SPLITTER_COMPLETE = 24;
+    /**
+     * Generated from protobuf enum <code>VIDEO_SPLITTER_ERROR = 25;</code>.
+     */
+    public const VIDEO_SPLITTER_ERROR = 25;
 
     private static $valueToName = [
+        self::RESIZING => 'RESIZING',
+        self::RESIZED => 'RESIZED',
+        self::READY_FOR_EXPORT => 'READY_FOR_EXPORT',
+        self::ERROR => 'ERROR',
         self::UPLOAD_COMPLETE => 'UPLOAD_COMPLETE',
         self::SOUND_EXTRACTOR_PENDING => 'SOUND_EXTRACTOR_PENDING',
         self::SOUND_EXTRACTOR_COMPLETE => 'SOUND_EXTRACTOR_COMPLETE',
@@ -123,10 +139,9 @@ class MediaPodStatus
         self::VIDEO_FORMATTER_PENDING => 'VIDEO_FORMATTER_PENDING',
         self::VIDEO_FORMATTER_COMPLETE => 'VIDEO_FORMATTER_COMPLETE',
         self::VIDEO_FORMATTER_ERROR => 'VIDEO_FORMATTER_ERROR',
-        self::RESIZING => 'RESIZING',
-        self::RESIZED => 'RESIZED',
-        self::READY_FOR_EXPORT => 'READY_FOR_EXPORT',
-        self::ERROR => 'ERROR',
+        self::VIDEO_SPLITTER_PENDING => 'VIDEO_SPLITTER_PENDING',
+        self::VIDEO_SPLITTER_COMPLETE => 'VIDEO_SPLITTER_COMPLETE',
+        self::VIDEO_SPLITTER_ERROR => 'VIDEO_SPLITTER_ERROR',
     ];
 
     public static function name($value)

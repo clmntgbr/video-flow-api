@@ -20,6 +20,7 @@ class UploadVideoConfiguration
     public ?string $subtitleShadow = null;
     public ?string $subtitleShadowColor = null;
     public ?string $format = null;
+    public ?string $split = null;
 
     public function __construct()
     {
@@ -34,5 +35,6 @@ class UploadVideoConfiguration
         $this->subtitleUnderline = '0';
         $this->subtitleColor = '#FFFFFF';
         $this->subtitleSize = '20';
+        $this->split = '1';
     }
 }

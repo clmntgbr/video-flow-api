@@ -44,6 +44,7 @@ class ProtobufService
         $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
         $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
         $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
+        $protoConfiguration->setSplit($mediaPod->getConfiguration()->getSplit());
 
         $protoMediaPod = new ProtoMediaPod();
         $protoMediaPod->setUuid($mediaPod->getUuid());
