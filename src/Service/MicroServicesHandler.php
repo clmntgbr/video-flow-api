@@ -32,7 +32,7 @@ final class MicroServicesHandler
 
         $mediaPod = $this->protobufTransformer->transformProtobufToEntity($protoMediaPod, $mediaPod);
         $status = $protoMediaPod->getStatus();
-
+        
         $this->mediaPodRepository->update($mediaPod, [
             'statuses' => [$status],
             'status' => $status,

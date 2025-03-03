@@ -10,8 +10,13 @@ use App\ApiResource\UploadVideoAction;
 use App\Entity\Traits\UuidTrait;
 use App\Protobuf\MediaPodStatus;
 use App\Repository\MediaPodRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OneToMany;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -54,6 +59,11 @@ class MediaPod
     #[Groups(['media-pods:get'])]
     private ?Video $processedVideo = null;
 
+    #[ManyToMany(targetEntity: Video::class, cascade: ['persist', 'remove'])]
+    #[JoinTable(name: 'media_pod_final_videos')]
+    #[Groups(['media-pods:get'])]
+    private Collection $finalVideo;
+
     #[ORM\OneToOne(targetEntity: Configuration::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'configuration_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['media-pods:get'])]
@@ -70,6 +80,7 @@ class MediaPod
     public function __construct()
     {
         $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
+        $this->finalVideo = new ArrayCollection();
     }
 
     public function getOriginalVideo(): ?Video
@@ -171,6 +182,30 @@ class MediaPod
     public function setProcessedVideo(?Video $processedVideo): static
     {
         $this->processedVideo = $processedVideo;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Video>
+     */
+    public function getFinalVideo(): Collection
+    {
+        return $this->finalVideo;
+    }
+
+    public function addFinalVideo(Video $finalVideo): static
+    {
+        if (!$this->finalVideo->contains($finalVideo)) {
+            $this->finalVideo->add($finalVideo);
+        }
+
+        return $this;
+    }
+
+    public function removeFinalVideo(Video $finalVideo): static
+    {
+        $this->finalVideo->removeElement($finalVideo);
 
         return $this;
     }

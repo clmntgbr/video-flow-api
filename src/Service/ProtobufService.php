@@ -10,6 +10,7 @@ use App\Protobuf\ApiToSubtitleIncrustator;
 use App\Protobuf\ApiToSubtitleMerger;
 use App\Protobuf\ApiToSubtitleTransformer;
 use App\Protobuf\ApiToVideoFormatter;
+use App\Protobuf\ApiToVideoSplitter;
 use App\Protobuf\Configuration as ProtoConfiguration;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\MediaPodStatus;
@@ -17,6 +18,7 @@ use App\Protobuf\Video as ProtoVideo;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Uid\Uuid;
 
 class ProtobufService
 {
@@ -28,6 +30,7 @@ class ProtobufService
     public function toSoundExtractor(UploadedFile $uploadedFile, MediaPod $mediaPod, User $user, string $fileName): void
     {
         $protoVideo = new ProtoVideo();
+        $protoVideo->setUuid(Uuid::v4()->toString());
         $protoVideo->setName($fileName);
         $protoVideo->setMimeType($uploadedFile->getMimeType());
         $protoVideo->setSize($uploadedFile->getSize());
@@ -88,6 +91,16 @@ class ProtobufService
 
         $this->messageBus->dispatch($protobuf, [
             new AmqpStamp('api_to_subtitle_incrustator', 0, []),
+        ]);
+    }
+
+    public function toVideoSplitter(ProtoMediaPod $mediaPod): void
+    {
+        $protobuf = new ApiToVideoSplitter();
+        $protobuf->setMediaPod($mediaPod);
+
+        $this->messageBus->dispatch($protobuf, [
+            new AmqpStamp('api_to_video_splitter', 0, []),
         ]);
     }
 

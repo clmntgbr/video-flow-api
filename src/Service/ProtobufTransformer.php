@@ -8,9 +8,15 @@ use App\Entity\Video;
 use App\Protobuf\Configuration as ProtoConfiguration;
 use App\Protobuf\MediaPod as ProtoMediaPod;
 use App\Protobuf\Video as ProtoVideo;
+use App\Repository\VideoRepository;
 
 class ProtobufTransformer
 {
+    public function __construct(
+        private VideoRepository $videoRepository,
+    ) {
+    }
+
     public function transformProtobufToEntity(ProtoMediaPod $protobuf, ?MediaPod $mediaPod): MediaPod
     {
         if (!$mediaPod) {
@@ -33,6 +39,13 @@ class ProtobufTransformer
             $mediaPod->setConfiguration(self::transformConfiguration($protobuf->getConfiguration(), $mediaPod->getConfiguration()));
         }
 
+        if ($protobuf->getFinalVideo() && $protobuf->getFinalVideo()->count() > 0) {
+            foreach ($protobuf->getFinalVideo()->getIterator() as $finalVideo) {
+                $video = $this->videoRepository->findOneBy(['uuid' => $finalVideo->getUuid()]);
+                $mediaPod->addFinalVideo(self::transformVideo($finalVideo, $video ?? new Video()));
+            }
+        }
+
         return $mediaPod;
     }
 
@@ -48,10 +61,6 @@ class ProtobufTransformer
 
         if ($entity->getStatus()) {
             $protobuf->setStatus($entity->getStatus());
-        }
-
-        if ($entity->getOriginalVideo()) {
-            $protobuf->setOriginalVideo(self::transformEntityToProtobufVideo($entity->getOriginalVideo()));
         }
 
         if ($entity->getOriginalVideo()) {
@@ -170,6 +179,12 @@ class ProtobufTransformer
 
         if ($entity->getName()) {
             $protobuf->setName($entity->getName());
+        }
+
+        dump($entity->getUuid());
+
+        if ($entity->getUuid()) {
+            $protobuf->setUuid($entity->getUuid());
         }
 
         if ($entity->getMimeType()) {

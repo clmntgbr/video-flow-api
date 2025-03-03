@@ -104,4 +104,4 @@ consume-subtitle-incrustator:
 	$(PHP) php bin/console messenger:consume subtitle_incrustator_to_api -vv
 	
 consume:
-	$(PHP) php bin/console messenger:consume sound_extractor_to_api subtitle_generator_to_api subtitle_merger_to_api subtitle_transformer_to_api subtitle_incrustator_to_api video_formatter_to_api -vv
+	$(PHP) php bin/console messenger:consume sound_extractor_to_api subtitle_generator_to_api subtitle_merger_to_api subtitle_transformer_to_api subtitle_incrustator_to_api video_formatter_to_api video_splitter_to_api -vv

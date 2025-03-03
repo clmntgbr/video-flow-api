@@ -25,6 +25,8 @@ class MediaPodOrchestrator
             MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_ERROR),
             MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_ERROR),
             MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_ERROR),
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_ERROR),
+            MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_ERROR),
         ])) {
             return;
         }
@@ -81,6 +83,23 @@ class MediaPodOrchestrator
             ]);
             $this->protobufService->toSubtitleIncrustator($protoMediaPod);
 
+            return;
+        }
+
+        if ($status === MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE)) {
+            /** @var MediaPod $mediaPod */
+            $mediaPod = $this->mediaPodRepository->update($mediaPod, [
+                'statuses' => [MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_PENDING)],
+                'status' => MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_PENDING),
+            ]);
+            $this->protobufService->toVideoSplitter($protoMediaPod);
+
+            return;
+        }
+
+        if ($status === MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_COMPLETE)) {
+            $this->protobufService->toVideoSplitter($protoMediaPod);
+            dd($mediaPod);
             return;
         }
     }
