@@ -1,9 +1,12 @@
 parameters:
+    transport_dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
 
 services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            string $transportDsn: '%transport_dsn%'
 
     App\:
         resource: '../src/'

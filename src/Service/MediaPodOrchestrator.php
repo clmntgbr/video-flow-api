@@ -100,6 +100,7 @@ class MediaPodOrchestrator
         if ($status === MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_COMPLETE)) {
             $this->protobufService->toVideoSplitter($protoMediaPod);
             dd($mediaPod);
+
             return;
         }
     }

@@ -6,451 +6,407 @@ use App\Entity\Configuration;
 use App\Entity\MediaPod;
 use App\Entity\User;
 use App\Entity\Video;
-use App\Protobuf\ApiToSubtitleIncrustator;
-use App\Protobuf\ApiToVideoFormatter;
-use App\Protobuf\Configuration as ProtoConfiguration;
-use App\Protobuf\MediaPod as ProtoMediaPod;
-use App\Protobuf\MediaPodStatus;
-use App\Protobuf\SubtitleGeneratorToApi;
-use App\Protobuf\Video as ProtoVideo;
-use App\Protobuf\VideoFormatStyle;
 use App\Repository\MediaPodRepository;
+use App\Repository\VideoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Flysystem\FilesystemOperator;
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpStamp;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Serializer\Context\Normalizer\ObjectNormalizerContextBuilder;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/debug', name: 'api_debug')]
 class DebugController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
+        private MediaPodRepository $mediaPodRepository,
+        private VideoRepository $videoRepository,
+        private readonly SerializerInterface $serializer,
+        private readonly FilesystemOperator $awsStorage,
+        private string $transportDsn,
     ) {
     }
 
-    private function getMediaPodData()
+    #[Route('/{service}', name: 'service', methods: ['GET'])]
+    public function debug(#[CurrentUser] ?User $user, string $service): JsonResponse
     {
-        return [
-            'videoName' => null,
-            'format' => 'ZOOMED_916',
-            'originalVideo' => [
-                'originalName' => 'video5.mp4',
-                'name' => '136cc2c2a2923f41987c67ca9845f9ff.mp4',
-                'mimeType' => 'video/mp4',
-                'size' => 71541180,
-                'length' => '240',
-                'subtitle' => '136cc2c2a2923f41987c67ca9845f9ff.srt',
-                'ass' => '136cc2c2a2923f41987c67ca9845f9ff.ass',
-                'subtitles' => [
-                    '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
-                    '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
-                    '136cc2c2a2923f41987c67ca9845f9ff_3.srt',
-                    '136cc2c2a2923f41987c67ca9845f9ff_4.srt',
-                    '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
-                ],
-                'audios' => [
-                    '136cc2c2a2923f41987c67ca9845f9ff_1.wav',
-                    '136cc2c2a2923f41987c67ca9845f9ff_2.wav',
-                    '136cc2c2a2923f41987c67ca9845f9ff_3.wav',
-                    '136cc2c2a2923f41987c67ca9845f9ff_4.wav',
-                    '136cc2c2a2923f41987c67ca9845f9ff_5.wav',
-                ],
-                'createdAt' => '2025-02-08T21:08:34+00:00',
-                'updatedAt' => '2025-02-08T21:08:54+00:00',
-                'uuid' => '7fb5d19e-002a-49d6-ba06-5f9f879137f6',
-            ],
-            'processedVideo' => [
-                'originalName' => 'video5.mp4',
-                'name' => '136cc2c2a2923f41987c67ca9845f9ff_processed.mp4',
-                'mimeType' => 'video/mp4',
-                'size' => 71541180,
-                'length' => '240',
-                'createdAt' => '2025-02-08T21:08:34+00:00',
-                'updatedAt' => '2025-02-08T21:08:54+00:00',
-                'uuid' => '7fb5d19e-002a-49d6-ba06-5f9f879137f7',
-            ],
-            'configuration' => [
-                'subtitleFont' => 'ARIAL',
-                'subtitleSize' => '20',
-                'subtitleColor' => '#FFFFFF',
-                'subtitleBold' => '0',
-                'subtitleItalic' => '0',
-                'subtitleUnderline' => '0',
-                'subtitleOutlineColor' => '#FFFFFF',
-                'subtitleOutlineThickness' => '1',
-                'subtitleShadow' => '1',
-                'subtitleShadowColor' => '#FFFFFF',
-                'format' => VideoFormatStyle::name(VideoFormatStyle::ZOOMED_916),
-                'split' => 3,
-            ],
-            'status' => 'subtitle_generator_pending',
-            'statuses' => [
-                MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE),
-                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING),
-                MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE),
-                MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING),
-            ],
-            'createdAt' => '2025-02-08T21:08:34+00:00',
-            'updatedAt' => '2025-02-08T21:08:54+00:00',
-            'uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15',
-        ];
-    }
+        $channel = $this->rabbitMqConnection();
 
-    private function createMediaPodEntity(User $user, array $mediaPodData, Video $video): MediaPod
-    {
-        $mediaPod = new MediaPod();
-        $mediaPod->setUser($user);
-        $mediaPod->setUuid($mediaPodData['uuid']);
-        $mediaPod->setVideoName($mediaPodData['videoName']);
-        $mediaPod->setOriginalVideo($video);
-        $mediaPod->setConfiguration(new Configuration());
-        $mediaPod->setStatus($mediaPodData['status']);
-        $mediaPod->initStatuses();
-        $mediaPod->setStatuses($mediaPodData['statuses']);
-        $mediaPod->setCreatedAt(new \DateTime($mediaPodData['createdAt']));
-        $mediaPod->setUpdatedAt(new \DateTime($mediaPodData['updatedAt']));
+        $video = $this->getOriginalVideo('464f7205-9d37-41b2-bb78-c2f652d7fc33');
+        $mediaPod = $this->getMediaPod($user, 'e363934c-837f-49fa-9f4a-55bb9afcfcff', $video);
+
+        $this->sendToS3($user, $mediaPod);
+
+        $message = match ($service) {
+            'api_to_sound_extractor' => $this->toSoundExtractor(),
+            'api_to_subtitle_generator' => $this->toSubtitleGenerator(),
+            'api_to_subtitle_transformer' => $this->toSubtitleTransformer(),
+            'api_to_subtitle_merger' => $this->toSubtitleMerger(),
+            'api_to_video_transformer' => $this->toVideoFormatter(),
+            'api_to_subtitle_incrustator' => $this->toSubtitleIncrustator($user, $mediaPod),
+            'api_to_video_splitter' => $this->toVideoSplitter($user, $mediaPod),
+            default => throw new \Exception('This service does not exist.'),
+        };
+
+        $channel->basic_publish($message, 'messages', $service);
 
         $this->em->persist($mediaPod);
+        $this->em->flush();
+
+        $context = (new ObjectNormalizerContextBuilder())
+            ->withGroups(['media-pods:get', 'default'])
+            ->toArray();
+
+        return new JsonResponse(data: $this->serializer->serialize($mediaPod, 'json', $context), status: Response::HTTP_OK, json: true);
+    }
+
+    private function getMediaPod(?User $user, string $uuid, Video $video)
+    {
+        $mediaPod = $this->mediaPodRepository->findOneBy(['uuid' => $uuid]);
+
+        if ($mediaPod instanceof MediaPod) {
+            return $mediaPod;
+        }
+
+        $mediaPod = new MediaPod();
+        $mediaPod->setConfiguration(new Configuration());
+        $mediaPod->setOriginalVideo($video);
+        $mediaPod->setUser($user);
+        $mediaPod->setUuid($uuid);
 
         return $mediaPod;
     }
 
-    private function createVideoEntity(array $mediaPodData): Video
+    private function getOriginalVideo(string $uuid): Video
     {
+        $video = $this->videoRepository->findOneBy(['uuid' => $uuid]);
+
+        if ($video instanceof Video) {
+            return $video;
+        }
+
         $video = new Video();
-        $video->setUuid($mediaPodData['originalVideo']['uuid']);
-        $video->setOriginalName($mediaPodData['originalVideo']['originalName']);
-        $video->setUuid($mediaPodData['originalVideo']['uuid']);
-        $video->setName($mediaPodData['originalVideo']['name']);
-        $video->setMimeType($mediaPodData['originalVideo']['mimeType']);
-        $video->setSize($mediaPodData['originalVideo']['size']);
-        $video->setLength($mediaPodData['originalVideo']['length']);
-        $video->setSubtitles($mediaPodData['originalVideo']['subtitles']);
-        $video->setAudios($mediaPodData['originalVideo']['audios']);
-        $video->setCreatedAt(new \DateTime($mediaPodData['originalVideo']['createdAt']));
-        $video->setUpdatedAt(new \DateTime($mediaPodData['originalVideo']['updatedAt']));
+        $video->setUuid('464f7205-9d37-41b2-bb78-c2f652d7fc33');
+        $video->setOriginalName('video.mp4');
+        $video->setName('f27644432084872be07b716b6b32af76.mp4');
+        $video->setMimeType('video/mp4');
+        $video->setSize('71541180');
 
         return $video;
     }
 
-    private function sendToS3(User $user, MediaPod $mediaPod, FilesystemOperator $awsStorage): void
+    private function toSoundExtractor(): AMQPMessage
     {
-        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff.mp4');
-        $stream = fopen('/app/public/debug/136cc2c2a2923f41987c67ca9845f9ff.mp4', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonSoundExtractor()],
+            'queue' => 'api_to_sound_extractor',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToSoundExtractor',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toSubtitleGenerator(): AMQPMessage
+    {
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonSubtitleGenerator()],
+            'queue' => 'api_to_subtitle_generator',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToSubtitleGenerator',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toSubtitleMerger(): AMQPMessage
+    {
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonSubtitleMerger()],
+            'queue' => 'api_to_subtitle_merger',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToSubtitleMerger',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toSubtitleTransformer(): AMQPMessage
+    {
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonSubtitleTransformer()],
+            'queue' => 'api_to_subtitle_transformer',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToSubtitleTransformer',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toVideoFormatter(): AMQPMessage
+    {
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonVideoFormatter()],
+            'queue' => 'api_to_video_transformer',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToVideoFormatter',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toSubtitleIncrustator(User $user, MediaPod $mediaPod): AMQPMessage
+    {
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_video_splitter.mp4', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_processed.mp4');
-        $stream = fopen('/app/public/debug/136cc2c2a2923f41987c67ca9845f9ff_processed.mp4', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonSubtitleIncrustator()],
+            'queue' => 'api_to_subtitle_incrustator',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToSubtitleIncrustator',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function toVideoSplitter(User $user, MediaPod $mediaPod): AMQPMessage
+    {
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_subtitle_incrustator.mp4', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
+            'visibility' => 'public',
+        ]);
+
+        $messageData = json_encode([
+            'task' => 'tasks.process_message',
+            'args' => [$this->getJsonVideoSplitter()],
+            'queue' => 'api_to_video_splitter',
+        ]);
+
+        $message = new AMQPMessage($messageData,
+            [
+                'content_type' => 'application/json',
+                'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT,
+                'headers' => [
+                    'type' => 'App\Protobuf\ApiToVideoSplitter',
+                    'Content-Type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $message;
+    }
+
+    private function sendToS3(User $user, MediaPod $mediaPod): void
+    {
+        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76.mp4');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76.mp4', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
         // Audios
 
-        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_1.wav');
-        $stream = fopen('/app/public/debug/audios/136cc2c2a2923f41987c67ca9845f9ff_1.wav', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_1.wav');
+        $stream = fopen('/app/public/debug/audios/f27644432084872be07b716b6b32af76_1.wav', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_2.wav');
-        $stream = fopen('/app/public/debug/audios/136cc2c2a2923f41987c67ca9845f9ff_2.wav', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_2.wav');
+        $stream = fopen('/app/public/debug/audios/f27644432084872be07b716b6b32af76_2.wav', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_3.wav');
-        $stream = fopen('/app/public/debug/audios/136cc2c2a2923f41987c67ca9845f9ff_3.wav', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_3.wav');
+        $stream = fopen('/app/public/debug/audios/f27644432084872be07b716b6b32af76_3.wav', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_4.wav');
-        $stream = fopen('/app/public/debug/audios/136cc2c2a2923f41987c67ca9845f9ff_4.wav', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_4.wav');
+        $stream = fopen('/app/public/debug/audios/f27644432084872be07b716b6b32af76_4.wav', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_5.wav');
-        $stream = fopen('/app/public/debug/audios/136cc2c2a2923f41987c67ca9845f9ff_5.wav', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/audios/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_5.wav');
+        $stream = fopen('/app/public/debug/audios/f27644432084872be07b716b6b32af76_5.wav', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
         // Subtitles
 
-        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff.srt');
-        $stream = fopen('/app/public/debug/136cc2c2a2923f41987c67ca9845f9ff.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76.srt');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff.ass');
-        $stream = fopen('/app/public/debug/136cc2c2a2923f41987c67ca9845f9ff.ass', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76.ass');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76.ass', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_1.srt');
-        $stream = fopen('/app/public/debug/subtitles/136cc2c2a2923f41987c67ca9845f9ff_1.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_1.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_1.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_2.srt');
-        $stream = fopen('/app/public/debug/subtitles/136cc2c2a2923f41987c67ca9845f9ff_2.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_2.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_2.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_3.srt');
-        $stream = fopen('/app/public/debug/subtitles/136cc2c2a2923f41987c67ca9845f9ff_3.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_3.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_3.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_4.srt');
-        $stream = fopen('/app/public/debug/subtitles/136cc2c2a2923f41987c67ca9845f9ff_4.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_4.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_4.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
 
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), '136cc2c2a2923f41987c67ca9845f9ff_5.srt');
-        $stream = fopen('/app/public/debug/subtitles/136cc2c2a2923f41987c67ca9845f9ff_5.srt', 'r');
-        $awsStorage->writeStream($path, $stream, [
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_5.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_5.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
+            'visibility' => 'public',
+        ]);
+
+        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_5.srt');
+        $stream = fopen('/app/public/debug/subtitles/f27644432084872be07b716b6b32af76_5.srt', 'r');
+        $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
     }
 
-    #[Route('/subtitle_generator_api', name: 'subtitle_generator_api', methods: ['GET'])]
-    public function subtitleGeneratorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
+    private function rabbitMqConnection(): AMQPChannel
     {
-        $mediaPodData = $this->getMediaPodData();
+        $parsedDsn = parse_url($this->transportDsn);
+        $user = $parsedDsn['user'] ?? 'guest';
+        $password = $parsedDsn['pass'] ?? 'guest';
+        $host = $parsedDsn['host'] ?? 'localhost';
+        $port = $parsedDsn['port'] ?? 5672;
+        $vhost = ltrim($parsedDsn['path'] ?? '/', '/') ?: '/';
 
-        $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
+        $connection = new AMQPStreamConnection($host, $port, $user, $password, $vhost);
+        $channel = $connection->channel();
+        $channel->exchange_declare('messages', 'direct', false, true, false);
 
-        if (!$mediaPod instanceof MediaPod) {
-            $video = $this->createVideoEntity($mediaPodData);
-            $mediaPod = $this->createMediaPodEntity($user, $mediaPodData, $video);
-            $this->em->flush();
-        }
-
-        $this->sendToS3($user, $mediaPod, $awsStorage);
-
-        $protoVideo = new ProtoVideo();
-        $protoVideo->setUuid($mediaPodData['originalVideo']['uuid']);
-        $protoVideo->setName($mediaPodData['originalVideo']['name']);
-        $protoVideo->setMimeType($mediaPodData['originalVideo']['mimeType']);
-        $protoVideo->setSize($mediaPodData['originalVideo']['size']);
-        $protoVideo->setLength($mediaPodData['originalVideo']['length']);
-        $protoVideo->setAudios($mediaPodData['originalVideo']['audios']);
-        $protoVideo->setSubtitles([
-            '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_3.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_4.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
-        ]);
-
-        $protoConfiguration = new ProtoConfiguration();
-        $protoConfiguration->setSplit($mediaPod->getConfiguration()->getSplit());
-        $protoConfiguration->setFormat($mediaPod->getConfiguration()->getFormat());
-        $protoConfiguration->setSubtitleFont($mediaPod->getConfiguration()->getSubtitleFont());
-        $protoConfiguration->setSubtitleSize($mediaPod->getConfiguration()->getSubtitleSize());
-        $protoConfiguration->setSubtitleColor($mediaPod->getConfiguration()->getSubtitleColor());
-        $protoConfiguration->setSubtitleBold($mediaPod->getConfiguration()->getSubtitleBold());
-        $protoConfiguration->setSubtitleItalic($mediaPod->getConfiguration()->getSubtitleItalic());
-        $protoConfiguration->setSubtitleUnderline($mediaPod->getConfiguration()->getSubtitleUnderline());
-        $protoConfiguration->setSubtitleOutlineColor($mediaPod->getConfiguration()->getSubtitleOutlineColor());
-        $protoConfiguration->setSubtitleOutlineThickness($mediaPod->getConfiguration()->getSubtitleOutlineThickness());
-        $protoConfiguration->setSubtitleShadow($mediaPod->getConfiguration()->getSubtitleShadow());
-        $protoConfiguration->setSubtitleShadowColor($mediaPod->getConfiguration()->getSubtitleShadowColor());
-
-        $protoMediaPod = new ProtoMediaPod();
-        $protoMediaPod->setUuid($mediaPodData['uuid']);
-        $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setConfiguration($protoConfiguration);
-        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE));
-
-        $subtitleGeneratorApi = new SubtitleGeneratorToApi();
-        $subtitleGeneratorApi->setMediaPod($protoMediaPod);
-
-        $messageBus->dispatch($subtitleGeneratorApi, [
-            new AmqpStamp('subtitle_generator_to_api', 0, []),
-        ]);
-
-        return new JsonResponse(data: [], status: Response::HTTP_CREATED);
+        return $channel;
     }
 
-    #[Route('/video_formatter_api', name: 'video_formatter_api', methods: ['GET'])]
-    public function videoFormatterApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
+    private function getJsonSoundExtractor(): string
     {
-        $mediaPodData = $this->getMediaPodData();
-
-        $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
-
-        if (!$mediaPod instanceof MediaPod) {
-            $video = $this->createVideoEntity($mediaPodData);
-            $mediaPod = $this->createMediaPodEntity($user, $mediaPodData, $video);
-            $mediaPodRepository->update($mediaPod, [
-                'status' => MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
-                'statuses' => [
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
-                ],
-            ]);
-        }
-
-        $this->sendToS3($user, $mediaPod, $awsStorage);
-
-        $protoVideo = new ProtoVideo();
-        $protoVideo->setUuid($mediaPodData['originalVideo']['uuid']);
-        $protoVideo->setName($mediaPodData['originalVideo']['name']);
-        $protoVideo->setMimeType($mediaPodData['originalVideo']['mimeType']);
-        $protoVideo->setSize($mediaPodData['originalVideo']['size']);
-        $protoVideo->setLength($mediaPodData['originalVideo']['length']);
-        $protoVideo->setSubtitle($mediaPodData['originalVideo']['subtitle']);
-        $protoVideo->setAss($mediaPodData['originalVideo']['ass']);
-        $protoVideo->setAudios($mediaPodData['originalVideo']['audios']);
-        $protoVideo->setSubtitles([
-            '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_3.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_4.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
-        ]);
-
-        $protoProcessedVideo = new ProtoVideo();
-        $protoProcessedVideo->setUuid($mediaPodData['processedVideo']['uuid']);
-        $protoProcessedVideo->setName($mediaPodData['processedVideo']['name']);
-        $protoProcessedVideo->setMimeType($mediaPodData['processedVideo']['mimeType']);
-        $protoProcessedVideo->setSize($mediaPodData['processedVideo']['size']);
-        $protoProcessedVideo->setLength($mediaPodData['processedVideo']['length']);
-
-        $protoConfiguration = new ProtoConfiguration();
-        $protoConfiguration->setFormat($mediaPodData['configuration']['format'] ?? $mediaPod->getConfiguration()->getFormat());
-        $protoConfiguration->setSplit($mediaPodData['configuration']['split'] ?? $mediaPod->getConfiguration()->getSplit());
-        $protoConfiguration->setSubtitleFont($mediaPodData['configuration']['subtitleFont'] ?? $mediaPod->getConfiguration()->getSubtitleFont());
-        $protoConfiguration->setSubtitleSize($mediaPodData['configuration']['subtitleSize'] ?? $mediaPod->getConfiguration()->getSubtitleSize());
-        $protoConfiguration->setSubtitleColor($mediaPodData['configuration']['subtitleColor'] ?? $mediaPod->getConfiguration()->getSubtitleColor());
-        $protoConfiguration->setSubtitleBold($mediaPodData['configuration']['subtitleBold'] ?? $mediaPod->getConfiguration()->getSubtitleBold());
-        $protoConfiguration->setSubtitleItalic($mediaPodData['configuration']['subtitleItalic'] ?? $mediaPod->getConfiguration()->getSubtitleItalic());
-        $protoConfiguration->setSubtitleUnderline($mediaPodData['configuration']['subtitleUnderline'] ?? $mediaPod->getConfiguration()->getSubtitleUnderline());
-        $protoConfiguration->setSubtitleOutlineColor($mediaPodData['configuration']['subtitleOutlineColor'] ?? $mediaPod->getConfiguration()->getSubtitleOutlineColor());
-        $protoConfiguration->setSubtitleOutlineThickness($mediaPodData['configuration']['subtitleOutlineThickness'] ?? $mediaPod->getConfiguration()->getSubtitleOutlineThickness());
-        $protoConfiguration->setSubtitleShadow($mediaPodData['configuration']['subtitleShadow'] ?? $mediaPod->getConfiguration()->getSubtitleShadow());
-        $protoConfiguration->setSubtitleShadowColor($mediaPodData['configuration']['subtitleShadowColor'] ?? $mediaPod->getConfiguration()->getSubtitleShadowColor());
-
-        $protoMediaPod = new ProtoMediaPod();
-        $protoMediaPod->setUuid($mediaPodData['uuid']);
-        $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setProcessedVideo($protoProcessedVideo);
-        $protoMediaPod->setConfiguration($protoConfiguration);
-        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING));
-
-        $apiToVideoFormatter = new ApiToVideoFormatter();
-        $apiToVideoFormatter->setMediaPod($protoMediaPod);
-
-        $messageBus->dispatch($apiToVideoFormatter, [
-            new AmqpStamp('api_to_video_formatter', 0, []),
-        ]);
-
-        return new JsonResponse(data: [], status: Response::HTTP_CREATED);
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180"},"status":"SOUND_EXTRACTOR_PENDING","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"}}}';
     }
 
-    #[Route('/subtitle_incrustator_api', name: 'subtitle_incrustator_api', methods: ['GET'])]
-    public function subtitleIncrustatorApi(#[CurrentUser] ?User $user, MediaPodRepository $mediaPodRepository, FilesystemOperator $awsStorage, MessageBusInterface $messageBus): JsonResponse
+    private function getJsonSubtitleGenerator(): string
     {
-        $mediaPodData = $this->getMediaPodData();
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"SOUND_EXTRACTOR_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"}}}';
+    }
 
-        $mediaPod = $mediaPodRepository->findOneBy(['uuid' => '35d74015-4b0e-46e9-a64c-044a75f27f15']);
+    private function getJsonSubtitleMerger(): string
+    {
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"SUBTITLE_GENERATOR_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"}}}';
+    }
 
-        if (!$mediaPod instanceof MediaPod) {
-            $video = $this->createVideoEntity($mediaPodData);
-            $mediaPod = $this->createMediaPodEntity($user, $mediaPodData, $video);
-            $mediaPodRepository->update($mediaPod, [
-                'status' => MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
-                'statuses' => [
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING),
-                    MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_COMPLETE),
-                    MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING),
-                ],
-            ]);
-        }
+    private function getJsonSubtitleTransformer(): string
+    {
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"SUBTITLE_MERGER_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"}}}';
+    }
 
-        $this->sendToS3($user, $mediaPod, $awsStorage);
+    private function getJsonVideoFormatter(): string
+    {
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","ass":"f27644432084872be07b716b6b32af76.ass","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"SUBTITLE_TRANSFORMER_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"}}}';
+    }
 
-        $protoVideo = new ProtoVideo();
-        $protoVideo->setUuid($mediaPodData['originalVideo']['uuid']);
-        $protoVideo->setName($mediaPodData['originalVideo']['name']);
-        $protoVideo->setMimeType($mediaPodData['originalVideo']['mimeType']);
-        $protoVideo->setSize($mediaPodData['originalVideo']['size']);
-        $protoVideo->setLength($mediaPodData['originalVideo']['length']);
-        $protoVideo->setSubtitle($mediaPodData['originalVideo']['subtitle']);
-        $protoVideo->setAss($mediaPodData['originalVideo']['ass']);
-        $protoVideo->setAudios($mediaPodData['originalVideo']['audios']);
-        $protoVideo->setSubtitles([
-            '136cc2c2a2923f41987c67ca9845f9ff_1.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_2.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_3.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_4.srt',
-            '136cc2c2a2923f41987c67ca9845f9ff_5.srt',
-        ]);
+    private function getJsonSubtitleIncrustator(): string
+    {
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","ass":"f27644432084872be07b716b6b32af76.ass","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"VIDEO_FORMATTER_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"},"processedVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76_processed.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","ass":"f27644432084872be07b716b6b32af76.ass","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]}}}';
+    }
 
-        $protoProcessedVideo = new ProtoVideo();
-        $protoProcessedVideo->setUuid($mediaPodData['processedVideo']['uuid']);
-        $protoProcessedVideo->setName($mediaPodData['processedVideo']['name']);
-        $protoProcessedVideo->setMimeType($mediaPodData['processedVideo']['mimeType']);
-        $protoProcessedVideo->setSize($mediaPodData['processedVideo']['size']);
-        $protoProcessedVideo->setLength($mediaPodData['processedVideo']['length']);
-
-        $protoConfiguration = new ProtoConfiguration();
-        $protoConfiguration->setFormat($mediaPodData['configuration']['format'] ?? $mediaPod->getConfiguration()->getFormat());
-        $protoConfiguration->setSplit($mediaPodData['configuration']['split'] ?? $mediaPod->getConfiguration()->getSplit());
-        $protoConfiguration->setSubtitleFont($mediaPodData['configuration']['subtitleFont'] ?? $mediaPod->getConfiguration()->getSubtitleFont());
-        $protoConfiguration->setSubtitleSize($mediaPodData['configuration']['subtitleSize'] ?? $mediaPod->getConfiguration()->getSubtitleSize());
-        $protoConfiguration->setSubtitleColor($mediaPodData['configuration']['subtitleColor'] ?? $mediaPod->getConfiguration()->getSubtitleColor());
-        $protoConfiguration->setSubtitleBold($mediaPodData['configuration']['subtitleBold'] ?? $mediaPod->getConfiguration()->getSubtitleBold());
-        $protoConfiguration->setSubtitleItalic($mediaPodData['configuration']['subtitleItalic'] ?? $mediaPod->getConfiguration()->getSubtitleItalic());
-        $protoConfiguration->setSubtitleUnderline($mediaPodData['configuration']['subtitleUnderline'] ?? $mediaPod->getConfiguration()->getSubtitleUnderline());
-        $protoConfiguration->setSubtitleOutlineColor($mediaPodData['configuration']['subtitleOutlineColor'] ?? $mediaPod->getConfiguration()->getSubtitleOutlineColor());
-        $protoConfiguration->setSubtitleOutlineThickness($mediaPodData['configuration']['subtitleOutlineThickness'] ?? $mediaPod->getConfiguration()->getSubtitleOutlineThickness());
-        $protoConfiguration->setSubtitleShadow($mediaPodData['configuration']['subtitleShadow'] ?? $mediaPod->getConfiguration()->getSubtitleShadow());
-        $protoConfiguration->setSubtitleShadowColor($mediaPodData['configuration']['subtitleShadowColor'] ?? $mediaPod->getConfiguration()->getSubtitleShadowColor());
-
-        $protoMediaPod = new ProtoMediaPod();
-        $protoMediaPod->setUuid($mediaPodData['uuid']);
-        $protoMediaPod->setUserUuid($user->getUuid());
-        $protoMediaPod->setOriginalVideo($protoVideo);
-        $protoMediaPod->setProcessedVideo($protoProcessedVideo);
-        $protoMediaPod->setConfiguration($protoConfiguration);
-        $protoMediaPod->setStatus(MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING));
-
-        $apiToSubtitleIncrustator = new ApiToSubtitleIncrustator();
-        $apiToSubtitleIncrustator->setMediaPod($protoMediaPod);
-
-        $messageBus->dispatch($apiToSubtitleIncrustator, [
-            new AmqpStamp('api_to_subtitle_incrustator', 0, []),
-        ]);
-
-        return new JsonResponse(data: [], status: Response::HTTP_CREATED);
+    private function getJsonVideoSplitter(): string
+    {
+        return '{"mediaPod":{"uuid":"e363934c-837f-49fa-9f4a-55bb9afcfcff","userUuid":"da59434f-602f-4d39-879c-eb0950812737","originalVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","ass":"f27644432084872be07b716b6b32af76.ass","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]},"status":"SUBTITLE_INCRUSTATOR_COMPLETE","configuration":{"subtitleFont":"ARIAL","subtitleSize":"16","subtitleColor":"#ffffff","subtitleBold":"1","subtitleItalic":"0","subtitleUnderline":"0","subtitleOutlineColor":"#000000","subtitleOutlineThickness":"1","subtitleShadow":"1","subtitleShadowColor":"#000000","format":"ZOOMED_916","split":"4"},"processedVideo":{"uuid":"464f7205-9d37-41b2-bb78-c2f652d7fc33","name":"f27644432084872be07b716b6b32af76_processed.mp4","mimeType":"video/mp4","size":"71541180","length":"1449","subtitle":"f27644432084872be07b716b6b32af76.srt","ass":"f27644432084872be07b716b6b32af76.ass","subtitles":["f27644432084872be07b716b6b32af76_1.srt","f27644432084872be07b716b6b32af76_2.srt","f27644432084872be07b716b6b32af76_3.srt","f27644432084872be07b716b6b32af76_4.srt","f27644432084872be07b716b6b32af76_5.srt"],"audios":["f27644432084872be07b716b6b32af76_1.wav","f27644432084872be07b716b6b32af76_2.wav","f27644432084872be07b716b6b32af76_3.wav","f27644432084872be07b716b6b32af76_4.wav","f27644432084872be07b716b6b32af76_5.wav"]}}}';
     }
 }
