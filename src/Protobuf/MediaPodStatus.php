@@ -114,6 +114,18 @@ class MediaPodStatus
      * Generated from protobuf enum <code>VIDEO_SPLITTER_ERROR = 25;</code>.
      */
     public const VIDEO_SPLITTER_ERROR = 25;
+    /**
+     * Generated from protobuf enum <code>VIDEO_INCRUSTATOR_PENDING = 26;</code>.
+     */
+    public const VIDEO_INCRUSTATOR_PENDING = 26;
+    /**
+     * Generated from protobuf enum <code>VIDEO_INCRUSTATOR_COMPLETE = 27;</code>.
+     */
+    public const VIDEO_INCRUSTATOR_COMPLETE = 27;
+    /**
+     * Generated from protobuf enum <code>VIDEO_INCRUSTATOR_ERROR = 28;</code>.
+     */
+    public const VIDEO_INCRUSTATOR_ERROR = 28;
 
     private static $valueToName = [
         self::RESIZING => 'RESIZING',
@@ -142,6 +154,9 @@ class MediaPodStatus
         self::VIDEO_SPLITTER_PENDING => 'VIDEO_SPLITTER_PENDING',
         self::VIDEO_SPLITTER_COMPLETE => 'VIDEO_SPLITTER_COMPLETE',
         self::VIDEO_SPLITTER_ERROR => 'VIDEO_SPLITTER_ERROR',
+        self::VIDEO_INCRUSTATOR_PENDING => 'VIDEO_INCRUSTATOR_PENDING',
+        self::VIDEO_INCRUSTATOR_COMPLETE => 'VIDEO_INCRUSTATOR_COMPLETE',
+        self::VIDEO_INCRUSTATOR_ERROR => 'VIDEO_INCRUSTATOR_ERROR',
     ];
 
     public static function name($value)

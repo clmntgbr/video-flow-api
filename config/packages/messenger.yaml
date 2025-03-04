@@ -168,6 +168,30 @@ framework:
                     queues:
                         video_splitter_to_api:
                             binding_keys: [video_splitter_to_api]
+
+            api_to_video_incrustator:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        api_to_video_incrustator:
+                            binding_keys: [api_to_video_incrustator]
+
+            video_incrustator_to_api:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                serializer: App\Messenger\Serializer\ProtobufSerializer
+                options:
+                    exchange:
+                        name: messages
+                        type: direct
+                    auto_setup: true
+                    queues:
+                        video_incrustator_to_api:
+                            binding_keys: [video_incrustator_to_api]
                             
         routing:
             'App\Protobuf\ApiToSoundExtractor': api_to_sound_extractor
@@ -190,3 +214,6 @@ framework:
 
             'App\Protobuf\ApiToVideoSplitter': api_to_video_splitter
             'App\Protobuf\VideoSplitterToApi': video_splitter_to_api
+
+            'App\Protobuf\ApiToVideoIncrustator': api_to_video_incrustator
+            'App\Protobuf\VideoIncrustatorToApi': video_incrustator_to_api
