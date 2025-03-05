@@ -23,12 +23,12 @@ jobs:
       - 
         name: Replace .env var
         run: |
-          cp .env .env.local
-          sed -i "s|PROJECT_NAME=\${ROOT_PROJECT_NAME}|PROJECT_NAME=${{ secrets.ROOT_PROJECT_NAME }}|g" .env.local
+          cp .env.dist .env
           sed -i "s|PROJECT_NAME=\${ROOT_PROJECT_NAME}|PROJECT_NAME=${{ secrets.ROOT_PROJECT_NAME }}|g" .env
+          sed -i "s|PROJECT_NAME=\${ROOT_PROJECT_NAME}|PROJECT_NAME=${{ secrets.ROOT_PROJECT_NAME }}|g" .env.dist
       - 
-        name: Vérification du contenu du fichier .env.local
-        run: cat .env.local
+        name: Vérification du contenu du fichier .env
+        run: cat .env
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
