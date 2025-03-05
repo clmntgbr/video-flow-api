@@ -214,8 +214,8 @@ class DebugController extends AbstractController
 
     private function toSubtitleIncrustator(User $user, MediaPod $mediaPod): AMQPMessage
     {
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
-        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_video_splitter.mp4', 'r');
+        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_subtitle_incrustator.mp4', 'r');
         $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
@@ -242,8 +242,8 @@ class DebugController extends AbstractController
 
     private function toVideoSplitter(User $user, MediaPod $mediaPod): AMQPMessage
     {
-        $path = sprintf('%s/%s/subtitles/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
-        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_subtitle_incrustator.mp4', 'r');
+        $path = sprintf('%s/%s/%s', $user->getUuid(), $mediaPod->getUuid(), 'f27644432084872be07b716b6b32af76_processed.mp4');
+        $stream = fopen('/app/public/debug/f27644432084872be07b716b6b32af76_processed_video_splitter.mp4', 'r');
         $this->awsStorage->writeStream($path, $stream, [
             'visibility' => 'public',
         ]);
