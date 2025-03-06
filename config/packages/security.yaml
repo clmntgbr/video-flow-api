@@ -16,16 +16,11 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         api:
+            custom_authenticators:
+                - App\Security\ClerkAuthenticator
             pattern: ^/(api)(?!/docs)
             stateless: true
             provider: app_user_provider
-            json_login:
-                check_path: /api/auth/token
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            jwt: ~
         main:
             form_login:
                 enable_csrf: true
@@ -47,12 +42,14 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS, methods: [GET, POST] }
         - { path: ^/logout, roles: PUBLIC_ACCESS, methods: [GET, POST] }
+        - { path: ^/webhook, roles: PUBLIC_ACCESS, methods: [GET, POST] }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/status, roles: PUBLIC_ACCESS }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/token, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/api, roles: PUBLIC_ACCESS }
+
 
 when@test:
     security:

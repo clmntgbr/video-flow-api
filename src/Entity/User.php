@@ -36,15 +36,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups(['user:get'])]
+    private ?string $clerkId = null;
+
+    #[ORM\Column(type: Types::STRING, nullable: true)]
     private ?string $plainPassword = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['user:get'])]
-    private ?string $givenName = null;
+    private ?string $firstName = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['user:get'])]
-    private ?string $familyName = null;
+    private ?string $lastName = null;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]
     #[Groups(['user:get'])]
@@ -171,33 +175,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getGivenName(): ?string
-    {
-        return $this->givenName;
-    }
-
-    public function setGivenName(?string $givenName): static
-    {
-        $this->givenName = $givenName;
-
-        return $this;
-    }
-
-    public function getFamilyName(): ?string
-    {
-        return $this->familyName;
-    }
-
     public function getName(): ?string
     {
-        return sprintf('%s %s', $this->givenName, $this->familyName);
-    }
-
-    public function setFamilyName(?string $familyName): static
-    {
-        $this->familyName = $familyName;
-
-        return $this;
+        return sprintf('%s %s', $this->firstName, $this->lastName);
     }
 
     public function getAvatarUrl(): ?string
@@ -257,6 +237,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $mediaPod->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getClerkId(): ?string
+    {
+        return $this->clerkId;
+    }
+
+    public function setClerkId(?string $clerkId): static
+    {
+        $this->clerkId = $clerkId;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): static
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): static
+    {
+        $this->lastName = $lastName;
 
         return $this;
     }
