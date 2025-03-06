@@ -1,8 +1,9 @@
 parameters:
     transport_dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-    secret_webhook_user_created: '%env(SECRET_WEBHOOK_USER_CREATED)%'
+    secret_webhook_user: '%env(SECRET_WEBHOOK_USER)%'
     secret_webhook_user_deleted: '%env(SECRET_WEBHOOK_USER_DELETED)%'
     clerk_publishable_key: '%env(CLERK_PUBLISHABLE_KEY)%'
+    master_key: '%env(MASTER_KEY)%'
     front_url: '%env(FRONT_URL)%'
 
 services:
@@ -11,9 +12,10 @@ services:
         autoconfigure: true
         bind:
             string $transportDsn: '%transport_dsn%'
-            string $secretWebhookUserCreated: '%secret_webhook_user_created%'
+            string $secretWebhookUser: '%secret_webhook_user%'
             string $secretWebhookUserDeleted: '%secret_webhook_user_deleted%'
             string $clerkPublishableKey: '%clerk_publishable_key%'
+            string $masterKey: '%master_key%'
             string $frontUrl: '%front_url%'
 
     App\:

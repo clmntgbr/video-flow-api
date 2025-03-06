@@ -23,40 +23,38 @@ class WebhookClerkController extends AbstractController
         private LoggerInterface $logger,
         private EntityManagerInterface $em,
         private UserRepository $userRepository,
-        private string $secretWebhookUserCreated,
+        private string $secretWebhookUser,
         private string $secretWebhookUserDeleted,
     ) {}
     
-    #[Route('/clerk/user/created', name: 'clerk_user_created', methods: ['GET', 'POST'])]
-    public function clerkUserCreated(Request $request)
+    #[Route('/clerk/user', name: 'clerk_user', methods: ['GET', 'POST'])]
+    public function clerkUser(Request $request)
     {
         $secret = $request->headers->get('secret', null);
         $event = $request->getPayload()->get('type', null);
 
-        if ($secret !== $this->secretWebhookUserCreated) {
+        if ($secret !== $this->secretWebhookUser) {
             return new JsonResponse(["message" => 'This secret is not valid.'], Response::HTTP_BAD_REQUEST);
         }
 
-        if ($event !== "user.created") {
+        if ($event !== "user.created" && $event !== "user.updated") {
             return new JsonResponse(["message" => 'This event is not valid.'], Response::HTTP_BAD_REQUEST);
         }
 
         $payload = json_decode($request->getContent(), true);
 
-        try {
-            $this->userRepository->create([
-                'clerkId' => $payload['data']['id'],
-                'email' => $payload['data']['email_addresses'][0]['email_address'],
-                'avatarUrl' => $payload['data']['profile_image_url'],
-                'lastName' => $payload['data']['last_name'],
-                'firstName' => $payload['data']['first_name'],
-                'plainPassword' => $payload['data']['id'],
-                'createdAt' => new DateTime($payload['data']['created_at']),
-                'udpatedAt' => new DateTime($payload['data']['updated_at']),
-            ]);
-        } catch (Exception $_) {
-            return new JsonResponse(["message" => 'This user already exist.'], Response::HTTP_BAD_REQUEST);
-        }
+        $this->userRepository->updateOrCreate([
+            'clerkId' => $payload['data']['id'],
+        ],[
+            'clerkId' => $payload['data']['id'],
+            'email' => $payload['data']['email_addresses'][0]['email_address'],
+            'avatarUrl' => $payload['data']['profile_image_url'],
+            'lastName' => $payload['data']['last_name'],
+            'firstName' => $payload['data']['first_name'],
+            'plainPassword' => $payload['data']['id'],
+            'createdAt' => (new DateTime())->setTimestamp($payload['data']['created_at'] / 100),
+            'udpatedAt' => (new DateTime())->setTimestamp($payload['data']['updated_at'] / 100),
+        ]);
         
         return new JsonResponse(null, Response::HTTP_OK);
     }

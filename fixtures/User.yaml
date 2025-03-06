@@ -1,11 +1,11 @@
 App\Entity\User:
   user_1:
     lastName: <lastname()>
-    firstName: <firstName()>
+    firstName: "clement"
     email: "clement@gmail.com"
     plain_password: "clement"
     roles: ["ROLE_ADMIN"]
-    uuid: da59434f-602f-4d39-879c-eb0950812737
+    uuid: "<{master_key}>"
     clerk_id: <uuid()>
 
   user_{2..5}:

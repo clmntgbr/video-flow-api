@@ -24,6 +24,7 @@ class ClerkAuthenticator extends AbstractAuthenticator
     public function __construct(
         private ClerkTokenValidator $clerkTokenValidator,
         private UserRepository $userRepository,
+        private string $masterKey,
     )
     {
         
@@ -39,6 +40,17 @@ class ClerkAuthenticator extends AbstractAuthenticator
         
         if (null === $apiToken) {
             throw new CustomUserMessageAuthenticationException('No API token provided.');
+        }
+
+        if (str_replace('Bearer ', '', $apiToken) === $this->masterKey) {
+            $user = $this->userRepository->findOneBy(['uuid' => $this->masterKey]);
+            
+            return new Passport(
+                new UserBadge($user->getEmail(), function (string $userIdentifier): ?UserInterface {
+                    return $this->userRepository->findOneBy(['uuid' => $this->masterKey]);
+                }),
+                new PasswordCredentials($user->getFirstName()),
+            );
         }
 
         $result = preg_match('/Bearer\s(\S+)/', $apiToken, $matches);
