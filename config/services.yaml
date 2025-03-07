@@ -3,7 +3,7 @@ parameters:
     secret_webhook_user: '%env(SECRET_WEBHOOK_USER)%'
     secret_webhook_user_deleted: '%env(SECRET_WEBHOOK_USER_DELETED)%'
     clerk_publishable_key: '%env(CLERK_PUBLISHABLE_KEY)%'
-    master_key: '%env(MASTER_KEY)%'
+    auth_admin_key: '%env(AUTH_ADMIN_KEY)%'
     front_url: '%env(FRONT_URL)%'
 
 services:
@@ -15,7 +15,7 @@ services:
             string $secretWebhookUser: '%secret_webhook_user%'
             string $secretWebhookUserDeleted: '%secret_webhook_user_deleted%'
             string $clerkPublishableKey: '%clerk_publishable_key%'
-            string $masterKey: '%master_key%'
+            string $authAdminKey: '%auth_admin_key%'
             string $frontUrl: '%front_url%'
 
     App\:

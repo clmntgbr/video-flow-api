@@ -5,7 +5,7 @@ App\Entity\User:
     email: "clement@gmail.com"
     plain_password: "clement"
     roles: ["ROLE_ADMIN"]
-    uuid: "<{master_key}>"
+    uuid: "<{auth_admin_key}>"
     clerk_id: <uuid()>
 
   user_{2..5}:

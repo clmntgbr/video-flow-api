@@ -42,7 +42,6 @@ class ClerkTokenValidator
         }
 
         $user = $this->userRepository->findOneBy([
-            'email' => $decodedTokens['data']['email'],
             'clerkId' => $decodedTokens['data']['id'],
         ]);
 

@@ -24,7 +24,7 @@ class ClerkAuthenticator extends AbstractAuthenticator
     public function __construct(
         private ClerkTokenValidator $clerkTokenValidator,
         private UserRepository $userRepository,
-        private string $masterKey,
+        private string $authAdminKey,
     )
     {
         
@@ -42,12 +42,12 @@ class ClerkAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('No API token provided.');
         }
 
-        if (str_replace('Bearer ', '', $apiToken) === $this->masterKey) {
-            $user = $this->userRepository->findOneBy(['uuid' => $this->masterKey]);
+        if (str_replace('Bearer ', '', $apiToken) === $this->authAdminKey) {
+            $user = $this->userRepository->findOneBy(['uuid' => $this->authAdminKey]);
             
             return new Passport(
                 new UserBadge($user->getEmail(), function (string $userIdentifier): ?UserInterface {
-                    return $this->userRepository->findOneBy(['uuid' => $this->masterKey]);
+                    return $this->userRepository->findOneBy(['uuid' => $this->authAdminKey]);
                 }),
                 new PasswordCredentials($user->getFirstName()),
             );
@@ -62,8 +62,8 @@ class ClerkAuthenticator extends AbstractAuthenticator
         $user = $this->clerkTokenValidator->validateToken($matches[1]);
 
         return new Passport(
-            new UserBadge($user->getEmail(), function (string $userIdentifier): ?UserInterface {
-                return $this->userRepository->findOneBy(['email' => $userIdentifier]);
+            new UserBadge($user->getClerkId(), function (string $userIdentifier): ?UserInterface {
+                return $this->userRepository->findOneBy(['clerkId' => $userIdentifier]);
             }),
             new PasswordCredentials($user->getClerkId()),
         );

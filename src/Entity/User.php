@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new Get(
             uriTemplate: '/me',
-            normalizationContext: ['skip_null_values' => false, 'groups' => ['user:get', 'media-pods:get']],
+            normalizationContext: ['skip_null_values' => false, 'groups' => ['user:get', 'media-pods:get', 'default']],
         ),
     ]
 )]
@@ -54,7 +54,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $avatarUrl = null;
 
     #[ORM\Column]
-    #[Groups(['user:get'])]
     private array $roles = [];
 
     #[ORM\Column]
