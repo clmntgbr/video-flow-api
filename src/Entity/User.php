@@ -173,6 +173,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[Groups(['user:get'])]
     public function getName(): ?string
     {
         return sprintf('%s %s', $this->firstName, $this->lastName);
