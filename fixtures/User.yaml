@@ -1,14 +1,16 @@
 App\Entity\User:
   user_1:
-    familyName: <lastname()>
-    givenName: <firstName()>
+    lastName: <lastname()>
+    firstName: "clement"
     email: "clement@gmail.com"
     plain_password: "clement"
     roles: ["ROLE_ADMIN"]
-    uuid: da59434f-602f-4d39-879c-eb0950812737
+    uuid: "<{auth_admin_key}>"
+    clerk_id: <uuid()>
 
-  user_{2..10}:
+  user_{2..5}:
     email: <email()>
-    familyName: <lastname()>
-    givenName: <firstName()>
+    lastName: <lastname()>
+    firstName: <firstName()>
     plain_password: "random"
+    clerk_id: <uuid()>

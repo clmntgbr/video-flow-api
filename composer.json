@@ -16,6 +16,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.7.1",
         "doctrine/doctrine-migrations-bundle": "^3.4.1",
         "doctrine/orm": "^3.3.2",
+        "firebase/php-jwt": "^6.11",
         "google/protobuf": "^4.29.3",
         "hautelook/alice-bundle": "^2.14.1",
         "league/flysystem-aws-s3-v3": "^3.29",
