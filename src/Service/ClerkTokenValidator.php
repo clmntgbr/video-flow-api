@@ -19,6 +19,14 @@ class ClerkTokenValidator
     {
         $decodedTokens = $this->decodeJwtToken($token);
 
+        $user = $this->userRepository->findOneBy([
+            'clerkId' => $decodedTokens['data']['id'] ?? '',
+        ]);
+
+        if (!$user) {
+            return null;
+        }
+
         if (!isset($decodedTokens['header']['kid'])) {
             throw new UnauthorizedHttpException('', 'Invalid token header');
         }
@@ -36,10 +44,6 @@ class ClerkTokenValidator
         if (!isset($decodedTokens['data']['exp']) && $currentTimestamp > $decodedTokens['data']['exp']) {
             throw new UnauthorizedHttpException('', 'Invalid exp value');
         }
-
-        $user = $this->userRepository->findOneBy([
-            'clerkId' => $decodedTokens['data']['id'],
-        ]);
 
         return $user;
     }

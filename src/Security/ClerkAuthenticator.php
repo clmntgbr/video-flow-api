@@ -7,6 +7,7 @@ use App\Service\ClerkTokenValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -35,7 +36,7 @@ class ClerkAuthenticator extends AbstractAuthenticator
         $apiToken = $request->headers->get('authorization');
 
         if (null === $apiToken) {
-            throw new CustomUserMessageAuthenticationException('No API token provided.');
+            throw new AuthenticationException('No API token provided.');
         }
 
         if (str_replace('Bearer ', '', $apiToken) === $this->authAdminKey) {
@@ -52,14 +53,13 @@ class ClerkAuthenticator extends AbstractAuthenticator
         $result = preg_match('/Bearer\s(\S+)/', $apiToken, $matches);
 
         if (!$result) {
-            throw new CustomUserMessageAuthenticationException('Token couldnt be decoded.');
+            throw new AuthenticationException('Token couldnt be decoded.');
         }
 
         $user = $this->clerkTokenValidator->validateToken($matches[1]);
-        dd($user);
 
         if (!$user) {
-            throw new AuthenticationException('User not found');
+            throw new NotFoundHttpException('User not found');
         }
 
         return new Passport(
