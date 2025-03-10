@@ -85,6 +85,9 @@ schema:
 regenerate:
 	$(PHP) php bin/console make:entity --regenerate App
 
+entity:
+	$(PHP) php bin/console make:entity
+
 fixtures:
 	$(PHP) php bin/console hautelook:fixtures:load -n
 

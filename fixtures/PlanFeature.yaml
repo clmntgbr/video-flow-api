@@ -1,0 +1,135 @@
+App\Entity\PlanFeature:
+  feature_1:
+    name: 'Upload limité'
+    description: 'Limité à 2 vidéos par mois'
+    enabled: true
+    plan: '@plan_1'
+
+  feature_2:
+    name: 'Résolution max 720p'
+    description: 'Les vidéos sont exportées en 720p maximum'
+    enabled: true
+    plan: '@plan_1'
+
+  feature_3:
+    name: 'Suppression du watermark'
+    description: 'Aucune marque sur les vidéos exportées'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_4:
+    name: 'Résolution 1080p'
+    description: 'Exportation en Full HD'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_6:
+    name: 'Vidéos illimitées'
+    description: 'Aucune limite sur le nombre de vidéos uploadées'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_7:
+    name: 'Résolution 4K'
+    description: 'Possibilité d’exporter en 4K'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_9:
+    name: 'Support prioritaire'
+    description: 'Assistance technique prioritaire'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_10:
+    name: 'Stockage cloud augmenté'
+    description: 'Quota de stockage augmenté pour conserver plus de vidéos'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_11:
+    name: 'Mode Collaboratif'
+    description: 'Travaillez à plusieurs sur un même projet'
+    enabled: false
+
+  feature_13:
+    name: 'Personnalisation avancée des sous-titres'
+    description: 'Choix des polices, tailles et couleurs détaillées'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_17:
+    name: 'Montage simple intégré'
+    description: 'Couper, rogner et ajuster la vidéo directement depuis l’interface'
+    enabled: false
+    plan: '@plan_1'
+
+  feature_18:
+    name: 'Intégration avec Google Drive & Dropbox'
+    description: 'Import et export directement depuis les services cloud'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_23:
+    name: 'Système de tags et catégories'
+    description: 'Organisez vos vidéos plus facilement grâce aux tags et catégories'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_25:
+    name: 'Watermark personnalisé'
+    description: 'Ajoutez votre propre logo en watermark sur les vidéos'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_26:
+    name: 'Publication directe sur les réseaux sociaux'
+    description: 'Publiez vos vidéos directement sur TikTok, YouTube et Instagram'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_27:
+    name: 'Génération de miniatures vidéo'
+    description: 'Créez automatiquement des miniatures attrayantes pour vos vidéos'
+    enabled: false
+
+  feature_31:
+    name: 'Ajout de musique libre de droits'
+    description: 'Accédez à une bibliothèque musicale intégrée'
+    enabled: false
+
+  feature_34:
+    name: 'Mode Story Instagram & TikTok'
+    description: 'Optimisation des vidéos pour les formats verticaux'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_35:
+    name: 'Programmation de publication'
+    description: 'Planifiez vos publications à l’avance'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_36:
+    name: 'Partage privé sécurisé'
+    description: 'Générez des liens protégés pour partager vos vidéos'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_37:
+    name: 'Mode "Vidéo carrée" pour réseaux sociaux'
+    description: 'Recadrez automatiquement vos vidéos en format carré (1:1)'
+    enabled: true
+    plan: '@plan_2'
+
+  feature_44:
+    name: 'Préréglages personnalisés'
+    description: 'Enregistrez et appliquez des configurations récurrentes en un clic'
+    enabled: true
+    plan: '@plan_3'
+
+  feature_46:
+    name: 'Détection automatique des meilleurs moments'
+    description: 'Analyse intelligente pour repérer les passages les plus engageants de votre vidéo'
+    enabled: true
+    plan: '@plan_3'

@@ -2,7 +2,6 @@
 
 namespace App\Security;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ClerkTokenValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,11 +12,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 class ClerkAuthenticator extends AbstractAuthenticator
 {
@@ -25,10 +22,9 @@ class ClerkAuthenticator extends AbstractAuthenticator
         private ClerkTokenValidator $clerkTokenValidator,
         private UserRepository $userRepository,
         private string $authAdminKey,
-    )
-    {
-        
+    ) {
     }
+
     public function supports(Request $request): ?bool
     {
         return $request->headers->has('authorization');
@@ -37,14 +33,14 @@ class ClerkAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): Passport
     {
         $apiToken = $request->headers->get('authorization');
-        
+
         if (null === $apiToken) {
             throw new CustomUserMessageAuthenticationException('No API token provided.');
         }
 
         if (str_replace('Bearer ', '', $apiToken) === $this->authAdminKey) {
             $user = $this->userRepository->findOneBy(['uuid' => $this->authAdminKey]);
-            
+
             return new Passport(
                 new UserBadge($user->getEmail(), function (string $userIdentifier): ?UserInterface {
                     return $this->userRepository->findOneBy(['uuid' => $this->authAdminKey]);
@@ -60,6 +56,11 @@ class ClerkAuthenticator extends AbstractAuthenticator
         }
 
         $user = $this->clerkTokenValidator->validateToken($matches[1]);
+        dd($user);
+
+        if (!$user) {
+            throw new AuthenticationException('User not found');
+        }
 
         return new Passport(
             new UserBadge($user->getClerkId(), function (string $userIdentifier): ?UserInterface {
@@ -77,7 +78,7 @@ class ClerkAuthenticator extends AbstractAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
+            'message' => $exception->getMessage(),
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);

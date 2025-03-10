@@ -1,0 +1,12 @@
+App\Entity\Plan:
+  plan_1:
+    name: 'Free'
+    price: 0
+
+  plan_2:
+    name: 'Pro'
+    price: 19.99
+
+  plan_3:
+    name: 'Business'
+    price: 49.99
