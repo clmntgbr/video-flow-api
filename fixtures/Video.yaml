@@ -1,0 +1,7 @@
+App\Entity\Video:
+  video_{1..50}:
+    originalName: "<word()>"
+    name: "<word()>"
+    mimeType: "video/mp4"
+    size: "<randomNumber(5)>"
+    length: "<randomNumber(5)>"

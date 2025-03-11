@@ -78,6 +78,7 @@ class MediaPod
 
     public function __construct()
     {
+        $this->initializeUuid();
         $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
         $this->finalVideo = new ArrayCollection();
     }
