@@ -1,7 +1,7 @@
 parameters:
     transport_dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
-    secret_webhook_user: '%env(SECRET_WEBHOOK_USER)%'
-    secret_webhook_user_deleted: '%env(SECRET_WEBHOOK_USER_DELETED)%'
+    secret_webhook_user_update_or_create: '%env(SECRET_WEBHOOK_USER_UPDATE_OR_CREATE)%'
+    secret_webhook_user_delete: '%env(SECRET_WEBHOOK_USER_DELETE)%'
     clerk_publishable_key: '%env(CLERK_PUBLISHABLE_KEY)%'
     auth_admin_key: '%env(AUTH_ADMIN_KEY)%'
     front_url: '%env(FRONT_URL)%'
@@ -12,8 +12,8 @@ services:
         autoconfigure: true
         bind:
             string $transportDsn: '%transport_dsn%'
-            string $secretWebhookUser: '%secret_webhook_user%'
-            string $secretWebhookUserDeleted: '%secret_webhook_user_deleted%'
+            string $secretWebhookUserUpdateOrCreate: '%secret_webhook_user_update_or_create%'
+            string $secretWebhookUserDelete: '%secret_webhook_user_delete%'
             string $clerkPublishableKey: '%clerk_publishable_key%'
             string $authAdminKey: '%auth_admin_key%'
             string $frontUrl: '%front_url%'

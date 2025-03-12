@@ -1,0 +1,9 @@
+framework:
+  webhook:
+    routing:
+      clerkUserCreateOrUpdate:
+        service: App\Webhook\ClerkUserCreateOrUpdateRequestParser
+        secret: '%secret_webhook_user_update_or_create%'
+      clerkUserDelete:
+        service: App\Webhook\ClerkUserDeleteRequestParser
+        secret: '%secret_webhook_user_delete%'
