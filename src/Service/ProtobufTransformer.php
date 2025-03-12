@@ -27,6 +27,10 @@ class ProtobufTransformer
             $mediaPod->setUuid($protobuf->getUuid());
         }
 
+        if ($protobuf->getFrame()) {
+            $mediaPod->setFrame($protobuf->getFrame());
+        }
+
         if ($protobuf->getOriginalVideo()) {
             $mediaPod->setOriginalVideo(self::transformVideo($protobuf->getOriginalVideo(), $mediaPod->getOriginalVideo() ?? new Video()));
         }

@@ -60,7 +60,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\OneToMany(targetEntity: MediaPod::class, mappedBy: 'user', cascade: ['remove'])]
-    #[Groups(['user:get'])]
     private Collection $mediaPods;
 
     public function __construct()

@@ -68,6 +68,10 @@ class MediaPod
     #[Groups(['media-pods:get'])]
     private ?Configuration $configuration = null;
 
+    #[ORM\Column(type: Types::STRING, nullable: true)]
+    #[Groups(['media-pods:get'])]
+    private ?string $frame = null;
+
     #[ORM\Column(type: Types::STRING)]
     #[Groups(['media-pods:get'])]
     private ?string $status = null;
@@ -75,6 +79,9 @@ class MediaPod
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['media-pods:get'])]
     private array $statuses = [];
+
+    #[Groups(['media-pods:get'])]
+    private ?float $percent = null;
 
     public function __construct()
     {
@@ -206,6 +213,30 @@ class MediaPod
     public function removeFinalVideo(Video $finalVideo): static
     {
         $this->finalVideo->removeElement($finalVideo);
+
+        return $this;
+    }
+
+    public function getFrame(): ?string
+    {
+        return $this->frame;
+    }
+
+    public function setFrame(?string $frame): static
+    {
+        $this->frame = $frame;
+
+        return $this;
+    }
+
+    public function getPercent(): ?float
+    {
+        return $this->percent;
+    }
+
+    public function setPercent(float $percent): static
+    {
+        $this->percent = $percent;
 
         return $this;
     }
