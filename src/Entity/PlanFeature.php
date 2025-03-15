@@ -15,7 +15,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: PlanFeatureRepository::class)]
 #[ApiResource(
-    operations: []
+    operations: [],
 )]
 class PlanFeature
 {

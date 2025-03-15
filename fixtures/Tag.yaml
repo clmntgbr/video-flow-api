@@ -1,0 +1,4 @@
+App\Entity\Tag:
+  tag_{1..100}:
+    name: "<word()>"
+    user: "@user_*"

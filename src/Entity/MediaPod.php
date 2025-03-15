@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -21,6 +23,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MediaPodRepository::class)]
 #[ApiResource(
+    order: ['createdAt' => 'DESC'],
     operations: [
         new GetCollection(
             normalizationContext: ['skip_null_values' => false, 'groups' => ['media-pods:get', 'default']],
@@ -63,6 +66,11 @@ class MediaPod
     #[Groups(['media-pods:get'])]
     private Collection $finalVideo;
 
+    #[ManyToMany(targetEntity: Tag::class, cascade: ['persist', 'remove'])]
+    #[JoinTable(name: 'media_pod_tags')]
+    #[Groups(['media-pods:get'])]
+    private Collection $tag;
+
     #[ORM\OneToOne(targetEntity: Configuration::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'configuration_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['media-pods:get'])]
@@ -88,6 +96,7 @@ class MediaPod
         $this->initializeUuid();
         $this->status = MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE);
         $this->finalVideo = new ArrayCollection();
+        $this->tag = new ArrayCollection();
     }
 
     public function getOriginalVideo(): ?Video
@@ -237,6 +246,30 @@ class MediaPod
     public function setPercent(float $percent): static
     {
         $this->percent = $percent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTag(): Collection
+    {
+        return $this->tag;
+    }
+
+    public function addTag(Tag $tag): static
+    {
+        if (!$this->tag->contains($tag)) {
+            $this->tag->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): static
+    {
+        $this->tag->removeElement($tag);
 
         return $this;
     }

@@ -88,7 +88,13 @@ regenerate:
 entity:
 	$(PHP) php bin/console make:entity
 
+clerk:
+	$(PHP) php bin/console app:clerk
+
 fixtures:
+	$(PHP) php bin/console hautelook:fixtures:load -n
+
+fixture:
 	$(PHP) php bin/console hautelook:fixtures:load -n
 
 consume-sound-extractor:

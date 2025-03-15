@@ -36,8 +36,6 @@ readonly class MediaPodEvent
 
     private function getMediaPodStatus() {
         return [
-            MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE) => 1,
-            
             MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING) => 1,
             MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE) => 2,
 

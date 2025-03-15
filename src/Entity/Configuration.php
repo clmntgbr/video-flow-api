@@ -15,7 +15,9 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ConfigurationRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: []
+)]
 class Configuration
 {
     use TimestampableEntity;
