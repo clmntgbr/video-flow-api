@@ -24,16 +24,25 @@ class UploadVideoConfiguration
 
     public function __construct()
     {
+        // Enum name
         $this->format = VideoFormatStyle::name(VideoFormatStyle::ORIGINAL);
         $this->subtitleFont = ConfigurationSubtitleFont::name(ConfigurationSubtitleFont::ARIAL);
+
+        // Numbers based on enum
         $this->subtitleShadow = (string) ConfigurationSubtitleShadow::SHADOW_MEDIUM;
-        $this->subtitleShadowColor = '#000000';
         $this->subtitleOutlineThickness = (string) ConfigurationSubtitleOutlineThickness::OUTLINE_MEDIUM;
+
+        // Hex code
+        $this->subtitleShadowColor = '#000000';
         $this->subtitleOutlineColor = '#000000';
+        $this->subtitleColor = '#FFFFFF';
+
+        // True / False
         $this->subtitleBold = '0';
         $this->subtitleItalic = '0';
         $this->subtitleUnderline = '0';
-        $this->subtitleColor = '#FFFFFF';
+
+        // Unit numbers
         $this->subtitleSize = '20';
         $this->split = '1';
     }
