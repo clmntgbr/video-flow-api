@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use App\ApiResource\ConfigurationAction;
 use App\Entity\Traits\UuidTrait;
 use App\Protobuf\ConfigurationSubtitleFont;
 use App\Protobuf\ConfigurationSubtitleOutlineThickness;
@@ -16,7 +18,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ConfigurationRepository::class)]
 #[ApiResource(
-    operations: []
+    operations: [
+        new Get(
+            uriTemplate: '/configuration',
+            controller: ConfigurationAction::class,
+            normalizationContext: ['groups' => ['media-pods:get']],
+        ),
+    ]
 )]
 class Configuration
 {
