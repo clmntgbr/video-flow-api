@@ -36,29 +36,33 @@ readonly class MediaPodEvent
 
     private function getMediaPodStatus() {
         return [
-            MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING) => 1,
-            MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE) => 2,
-
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING) => 3,
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE) => 4,
-
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING) => 5,
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE) => 6,
-
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING) => 7,
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE) => 8,
-
-            MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING) => 9,
-            MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_COMPLETE) => 10,
-
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING) => 11,
-            MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE) => 12,
-
-            MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_PENDING) => 13,
-            MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_COMPLETE) => 14,
-
-            MediaPodStatus::name(MediaPodStatus::VIDEO_INCRUSTATOR_PENDING) => 15,
-            MediaPodStatus::name(MediaPodStatus::VIDEO_INCRUSTATOR_COMPLETE) => 16,
-        ];
+            MediaPodStatus::name(MediaPodStatus::UPLOAD_COMPLETE) => 1,
+        
+            MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_PENDING) => 2,
+            MediaPodStatus::name(MediaPodStatus::SOUND_EXTRACTOR_COMPLETE) => 3,
+        
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_PENDING) => 4,
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_GENERATOR_COMPLETE) => 5,
+        
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_PENDING) => 6,
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_MERGER_COMPLETE) => 7,
+        
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_PENDING) => 8,
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_TRANSFORMER_COMPLETE) => 9,
+        
+            MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_PENDING) => 10,
+            MediaPodStatus::name(MediaPodStatus::VIDEO_FORMATTER_COMPLETE) => 11,
+        
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_PENDING) => 12,
+            MediaPodStatus::name(MediaPodStatus::SUBTITLE_INCRUSTATOR_COMPLETE) => 13,
+        
+            MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_PENDING) => 14,
+            MediaPodStatus::name(MediaPodStatus::VIDEO_SPLITTER_COMPLETE) => 15,
+        
+            MediaPodStatus::name(MediaPodStatus::VIDEO_INCRUSTATOR_PENDING) => 16,
+            MediaPodStatus::name(MediaPodStatus::VIDEO_INCRUSTATOR_COMPLETE) => 17,
+        
+            MediaPodStatus::name(MediaPodStatus::VIDEO_READY) => 18,
+        ];        
     }
 }
